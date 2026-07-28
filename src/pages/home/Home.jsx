@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { getTrendingAll } from "../../api/trendingApi";
 import { getContentDetail } from "../../api/contentApi";
 import { getImages } from "../../api/logoImgApi";
+import Loading from "../../components/common/Loading";
 import ContentHero from "../../components/sections/ContentHero";
 
 export default function Home() {
   const [heroItem, setHeroItem] = useState(null);
   const [heroDetail, setHeroDetail] = useState(null);
   const [heroLogo, setHeroLogo] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     (async () => {
       try {
@@ -36,10 +37,14 @@ export default function Home() {
         setHeroDetail(detailData);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
-
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <div>
       {heroItem && heroDetail && (
