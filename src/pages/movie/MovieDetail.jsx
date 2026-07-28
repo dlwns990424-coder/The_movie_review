@@ -1,3 +1,3 @@
 export default function MovieDetail() {
-  return <div></div>;
+  return <h1>영화 상세</h1>;
 }

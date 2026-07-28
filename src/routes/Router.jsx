@@ -11,6 +11,7 @@ import MyPage from "../pages/mypage/MyPage";
 import Search from "../pages/search/Search";
 import Signup from "../pages/signup/Signup";
 import Login from "../pages/login/Login";
+import Wishlist from "../pages/wishlist/Wishlist";
 export default function Router() {
   return (
     <BrowserRouter>
@@ -25,10 +26,10 @@ export default function Router() {
 
           <Route path="/people" element={<PeopleList />} />
           <Route path="/people/:personId" element={<PersonDetail />} />
-
-          <Route path="/search" element={<Search />} />
-          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/wishlist" element={<Wishlist />} />
         </Route>
+        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/search" element={<Search />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

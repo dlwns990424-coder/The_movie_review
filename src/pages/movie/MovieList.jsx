@@ -1,3 +1,3 @@
-export default function Movie() {
+export default function MovieList() {
   return <h1>영화</h1>;
 }
