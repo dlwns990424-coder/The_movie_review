@@ -27,6 +27,7 @@ textarea {
 
 button {
   border: none;
+  cursor: pointer;
 }
 
 a {

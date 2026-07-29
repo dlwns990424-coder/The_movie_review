@@ -2,10 +2,12 @@ import { Link, NavLink } from "react-router-dom";
 
 export default function Header() {
   return (
-    <header className="px-[60px] w-full h-[60px] md:h-[80px] flex items-center justify-between bg-black/0 text-white fixed z-50">
+    <header className="px-[20px] md:px-[40px] lg:px-[60px] w-full h-[60px] md:h-[80px] flex items-center justify-between bg-black/0 text-white fixed z-50">
       <div className="flex items-center">
         <Link to="/" className="mr-[50px]">
-          <h1 className="text-[30px] text-[#33ddff] font-bold">THE MOVIE</h1>
+          <h1 className="text-[20px] md:text-[30px] text-[#33ddff] font-bold">
+            THE MOVIE
+          </h1>
         </Link>
 
         <nav>

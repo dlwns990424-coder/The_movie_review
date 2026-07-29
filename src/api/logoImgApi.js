@@ -9,3 +9,14 @@ export const getImages = async (mediaType, id) => {
 
   return response.data;
 };
+
+export const getLogo = async (mediaType, id) => {
+  const imageData = await getImages(mediaType, id);
+
+  return (
+    imageData.logos.find((logo) => logo.iso_639_1 === "ko") ||
+    imageData.logos.find((logo) => logo.iso_639_1 === "en") ||
+    imageData.logos[0] ||
+    null
+  );
+};
