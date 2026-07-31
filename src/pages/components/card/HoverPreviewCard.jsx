@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
-import TrailerPreviewMedia from "./TrailerPreviewMedia";
-import { getContentDetail } from "../../api/contentApi";
-import { CLIP_PRIORITY } from "../../constants/videoPriority";
+import { ORIGINAL_URL } from "../../../constants/imageUrl";
+import { getContentDetail } from "../../../api/contentApi";
 
 const detailCache = new Map();
 
@@ -88,7 +87,7 @@ export default function HoverPreviewCard({
       className={`
         absolute
         top-1/2
-        z-[200]
+        z-[900]
         hidden
         w-[400px]
         -translate-y-1/2
@@ -108,14 +107,13 @@ export default function HoverPreviewCard({
       `}
     >
       <Link to={detailPath} className="block">
-        <TrailerPreviewMedia
-          itemId={item.id}
-          mediaType={mediaType}
-          backdropPath={item.backdrop_path || item.poster_path}
-          title={title}
-          isActive={canShowHover}
-          videoPriority={CLIP_PRIORITY}
-        />
+        <div className="relative aspect-video w-full overflow-hidden bg-black">
+          <img
+            src={`${ORIGINAL_URL}${item.backdrop_path || item.poster_path}`}
+            alt={title}
+            className="h-full w-full object-cover"
+          />
+        </div>
       </Link>
 
       <div className="p-4">
@@ -196,7 +194,7 @@ export default function HoverPreviewCard({
             items-center
             justify-center
             rounded-lg
-            bg-[#33ddff]
+            bg-white
             text-sm
             font-semibold
             text-black

@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 export default function PageTitle({ title }) {
   return (
     <Helmet>
-      <title>{title ? `THE MOVIE | ${title}` : "THE MOVIE"}</title>
+      <title>{`${title} - THE MOVIE`}</title>
 
       <meta
         name="description"

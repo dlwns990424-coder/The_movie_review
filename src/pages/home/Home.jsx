@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { getTrendingAll } from "../../api/trendingApi";
 import { getContentDetail } from "../../api/contentApi";
 import { getLogo } from "../../api/logoImgApi";
-import Loading from "../../components/common/Loading";
-import ContentHero from "../../components/sections/ContentHero";
+
+import Loading from "../components/common/Loading";
+import PageTitle from "../components/common/PageTitle";
+import ContentHero from "../components/sections/ContentHero";
+import PopularContents from "../components/sections/PopularContents";
+
 import GlobalTop10 from "./components/GlobalTop10";
-import PopularContent from "./components/PopularContent";
-import NowPlaying from "./components/NowPlaying";
-import TopRated from "./components/TopRated";
-import Trailer from "./components/Trailer";
-import PageTitle from "../../components/common/PageTitle";
+import Upcoming from "./components/Upcoming";
+import PopularPeople from "../components/sections/PopularPeople";
 
 export default function Home() {
   // Hero에 사용할 기본 콘텐츠 정보
@@ -27,9 +28,8 @@ export default function Home() {
   // Home 데이터 로딩 상태
   const [loading, setLoading] = useState(true);
 
-  // Home 컴포넌트가 처음 실행될 때 한 번만 데이터 요청
   useEffect(() => {
-    (async () => {
+    const getHomeData = async () => {
       try {
         // 오늘의 트렌딩 콘텐츠 가져오기
         const trendingData = await getTrendingAll();
@@ -42,13 +42,13 @@ export default function Home() {
         // 영화 또는 시리즈 데이터가 없으면 실행 중단
         if (contentList.length === 0) return;
 
-        // 트렌딩 목록의 첫 번째 콘텐츠를 Hero로 선택
+        // 첫 번째 콘텐츠를 Hero로 사용
         const selectedItem = contentList[0];
 
-        // 상위 10개 콘텐츠만 추출
+        // 상위 10개 콘텐츠 추출
         const top10Contents = contentList.slice(0, 10);
 
-        // TOP10 각각의 로고를 가져와 기존 콘텐츠에 추가
+        // TOP10 콘텐츠 로고 가져오기
         const top10WithLogos = await Promise.all(
           top10Contents.map(async (item) => {
             const logo = await getLogo(item.media_type, item.id);
@@ -60,42 +60,34 @@ export default function Home() {
           }),
         );
 
-        // Hero에 사용할 첫 번째 콘텐츠의 상세 정보 가져오기
+        // Hero 상세 정보 가져오기
         const detailData = await getContentDetail(
           selectedItem.media_type,
           selectedItem.id,
         );
 
-        // 로고가 추가된 TOP10 목록 저장
         setTop10List(top10WithLogos);
-
-        // TOP10 첫 번째 콘텐츠의 로고를 Hero에서도 재사용
         setHeroLogo(top10WithLogos[0]?.logo ?? null);
-
-        // Hero 기본 콘텐츠 정보 저장
         setHeroItem(selectedItem);
-
-        // Hero 상세 정보 저장
         setHeroDetail(detailData);
       } catch (error) {
-        // 데이터 요청 중 발생한 오류 확인
         console.log(error);
       } finally {
-        // 요청 성공 여부와 관계없이 로딩 종료
         setLoading(false);
       }
-    })();
+    };
+
+    getHomeData();
   }, []);
 
-  // 데이터 요청 중에는 로딩 컴포넌트 출력
   if (loading) {
     return <Loading />;
   }
 
   return (
     <div>
-      <PageTitle />
-      {/* Hero 데이터가 준비된 경우에만 출력 */}
+      <PageTitle title="홈" />
+
       {heroItem && heroDetail && (
         <ContentHero
           item={heroItem}
@@ -105,12 +97,14 @@ export default function Home() {
         />
       )}
 
-      {/* TOP10 목록을 props로 전달 */}
       <GlobalTop10 items={top10List} />
-      <PopularContent />
-      <NowPlaying />
-      <TopRated />
-      <Trailer />
+
+      <PopularContents mediaType="movie" title="인기있는 영화" />
+
+      <PopularContents mediaType="tv" title="인기있는 시리즈" />
+
+      <PopularPeople />
+      <Upcoming />
     </div>
   );
 }

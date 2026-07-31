@@ -2,43 +2,56 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import HoverPreviewCard from "../../components/card/HoverPreviewCard";
+
+import HoverPreviewCard from "../card/HoverPreviewCard";
+
+import { getPopularMovies } from "../../../api/movieApi";
+import { getPopularTv } from "../../../api/tvApi";
+import { ORIGINAL_URL } from "../../../constants/imageUrl";
+import { addGenreNames } from "../../../lib/genreUtils";
 
 import "swiper/css";
 
-import { getTopRatedMovies } from "../../../api/movieApi";
-import { getTopRatedTv } from "../../../api/tvApi";
-import { ORIGINAL_URL } from "../../../constants/imageUrl";
-import { addGenreNames } from "../../../lib/genreUtils";
-export default function TopRated() {
+export default function PopularContents({ mediaType, title }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("movie");
-  const [movieData, setMovieData] = useState([]);
-  const [tvData, setTvData] = useState([]);
+  // 영화 또는 시리즈 목록
+  const [contents, setContents] = useState([]);
+
+  // 데이터 로딩 상태
   const [loading, setLoading] = useState(true);
 
+  // Swiper 처음과 끝 상태
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
   // z-index를 유지할 카드
   const [hoveredId, setHoveredId] = useState(null);
 
-  // 실제로 보이는 hover 카드
+  // 실제로 보이는 Hover 카드
   const [visibleId, setVisibleId] = useState(null);
 
-  const [wishlist, setWishlist] = useState(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
-
-    return savedWishlist ? JSON.parse(savedWishlist) : [];
-  });
+  // 현재 화면에 보이는 슬라이드 범위
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
   });
 
+  // 찜 목록
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const savedWishlist = localStorage.getItem("wishlist");
+
+      return savedWishlist ? JSON.parse(savedWishlist) : [];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  });
+
+  // Swiper 위치 상태 업데이트
   const updateSwiperState = (swiper) => {
     setIsBeginning(swiper.isBeginning);
     setIsEnd(swiper.isEnd);
@@ -53,38 +66,8 @@ export default function TopRated() {
       end: swiper.activeIndex + slidesPerView - 1,
     });
   };
-  useEffect(() => {
-    const getTopRatedData = async () => {
-      try {
-        setLoading(true);
 
-        const [movieResponse, tvResponse] = await Promise.all([
-          getTopRatedMovies(),
-          getTopRatedTv(),
-        ]);
-
-        const movieList = await addGenreNames(movieResponse.results, "movie");
-        const tvList = await addGenreNames(tvResponse.results, "tv");
-
-        setMovieData(movieList);
-        setTvData(tvList);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getTopRatedData();
-
-    return () => {
-      clearTimeout(hoverTimer.current);
-      clearTimeout(closeTimer.current);
-    };
-  }, []);
-
-  const currentData = activeTab === "movie" ? movieData : tvData;
-
+  // Hover 상태 초기화
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
     clearTimeout(closeTimer.current);
@@ -93,25 +76,46 @@ export default function TopRated() {
     setHoveredId(null);
   };
 
-  const handleTab = (tab) => {
-    resetHover();
+  useEffect(() => {
+    const getPopularData = async () => {
+      try {
+        setLoading(true);
 
-    setActiveTab(tab);
+        // mediaType이 movie면 인기 영화,
+        // tv면 인기 시리즈 API 실행
+        const response =
+          mediaType === "movie"
+            ? await getPopularMovies()
+            : await getPopularTv();
 
-    setTimeout(() => {
-      swiperRef.current?.slideTo(0);
-      setIsBeginning(true);
-      setIsEnd(false);
-    }, 0);
-  };
+        // 장르 번호를 장르 이름으로 변환
+        const list = await addGenreNames(response.results, mediaType);
 
+        setContents(list);
+      } catch (error) {
+        console.log(error);
+        setContents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getPopularData();
+
+    return () => {
+      clearTimeout(hoverTimer.current);
+      clearTimeout(closeTimer.current);
+    };
+  }, [mediaType]);
+
+  // 찜 추가 및 삭제
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: activeTab,
+      media_type: mediaType,
     };
 
     setWishlist((prev) => {
@@ -139,35 +143,15 @@ export default function TopRated() {
 
   if (loading) return null;
 
+  if (contents.length === 0) return null;
+
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
-      {/* 제목 및 탭 */}
-      <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
+    <section className="relative overflow-x-clip bg-black/96 pt-[70px]">
+      {/* 섹션 제목 */}
+      <div className="mb-4 px-5 md:px-10 xl:px-15">
         <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          평점 높은 콘텐츠
+          {title}
         </h2>
-
-        <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">
-          <button
-            type="button"
-            onClick={() => handleTab("movie")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "movie" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            영화
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTab("tv")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "tv" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            시리즈
-          </button>
-        </div>
       </div>
 
       {/* Swiper 영역 */}
@@ -175,6 +159,7 @@ export default function TopRated() {
         {!isBeginning && (
           <button
             type="button"
+            aria-label="이전 콘텐츠 보기"
             onClick={() => swiperRef.current?.slidePrev()}
             className="
               absolute
@@ -187,10 +172,12 @@ export default function TopRated() {
               cursor-pointer
               items-center
               justify-center
+              duration-200
+              hover:bg-black/40
               text-white
+              rounded-r-2xl
+              rounded-br-lg-2x1
               lg:flex
-            bg-black/50
-
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -198,7 +185,7 @@ export default function TopRated() {
         )}
 
         <Swiper
-          key={activeTab}
+          key={mediaType}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -238,14 +225,15 @@ export default function TopRated() {
               spaceBetween: 18,
             },
             1600: {
-              slidesPerView: 5,
-              slidesPerGroup: 5,
+              slidesPerView: 8,
+              slidesPerGroup: 8,
               spaceBetween: 18,
             },
           }}
         >
-          {currentData.map((item, index) => {
+          {contents.map((item, index) => {
             if (!item.backdrop_path) return null;
+
             const previewPosition =
               index === visibleRange.start
                 ? "left"
@@ -253,10 +241,9 @@ export default function TopRated() {
                   ? "right"
                   : "center";
 
-            const mediaType = activeTab;
             const cardId = `${mediaType}-${item.id}`;
 
-            const title = mediaType === "movie" ? item.title : item.name;
+            const contentTitle = mediaType === "movie" ? item.title : item.name;
 
             const date =
               mediaType === "movie" ? item.release_date : item.first_air_date;
@@ -289,10 +276,10 @@ export default function TopRated() {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 hover 카드 숨김
+                  // Hover 카드 먼저 숨김
                   setVisibleId(null);
 
-                  // 사라지는 애니메이션이 끝난 뒤 z-index 제거
+                  // 애니메이션 종료 후 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -305,23 +292,23 @@ export default function TopRated() {
               >
                 {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
-                  <div className="aspect-video overflow-hidden rounded-lg bg-white/10">
+                  <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
-                      src={`${ORIGINAL_URL}${item.backdrop_path}`}
-                      alt={title}
-                      className={`
-                        h-full
-                        w-full
-                        object-cover
-                        transition-transform
-                        duration-300
-                      `}
+                      src={`${ORIGINAL_URL}${item.poster_path}`}
+                      alt={contentTitle}
+                      className="
+                      h-full
+                      w-full
+                      object-cover
+                      transition-transform
+                      duration-300
+                    "
                     />
                   </div>
 
                   <div className="mt-3">
                     <h3 className="truncate text-base font-semibold text-white">
-                      {title}
+                      {contentTitle}
                     </h3>
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
@@ -350,6 +337,7 @@ export default function TopRated() {
         {!isEnd && (
           <button
             type="button"
+            aria-label="다음 콘텐츠 보기"
             onClick={() => swiperRef.current?.slideNext()}
             className="
               absolute
@@ -362,9 +350,13 @@ export default function TopRated() {
               cursor-pointer
               items-center
               justify-center
+              transition-all
+              duration-200
+              hover:bg-black/40
               text-white
+              rounded-l-2xl
+              rounded-bl-lg-2x1
               md:flex
-              bg-black/50
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

@@ -2,20 +2,38 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import HoverPreviewCard from "../../../components/cards/HoverPreviewCard";
+import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 
 import "swiper/css";
-
-import { getPopularMovies } from "../../../api/movieApi";
-import { getPopularTv } from "../../../api/tvApi";
+import { getUpcomingTv } from "../../../api/tvApi";
+import { getUpcomingMovies } from "../../../api/movieApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
-export default function NowPlaying() {
+// 오늘부터 공개일까지 남은 날짜 계산
+const getDDay = (date) => {
+  if (!date) return null;
+
+  const today = new Date();
+  const releaseDate = new Date(`${date}T00:00:00`);
+
+  today.setHours(0, 0, 0, 0);
+
+  const difference = releaseDate.getTime() - today.getTime();
+  const days = Math.ceil(difference / (1000 * 60 * 60 * 24));
+
+  if (days > 0) return `D-${days}`;
+  if (days === 0) return "D-DAY";
+
+  return "공개됨";
+};
+
+export default function Upcoming() {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
   const [activeTab, setActiveTab] = useState("movie");
+
   const [movieData, setMovieData] = useState([]);
   const [tvData, setTvData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,20 +41,21 @@ export default function NowPlaying() {
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
-  // z-index를 유지할 카드
+  // hover 카드의 z-index를 유지
   const [hoveredId, setHoveredId] = useState(null);
 
-  // 실제로 보이는 hover 카드
+  // 실제로 화면에 보이는 hover 카드
   const [visibleId, setVisibleId] = useState(null);
+
+  const [visibleRange, setVisibleRange] = useState({
+    start: 0,
+    end: 0,
+  });
 
   const [wishlist, setWishlist] = useState(() => {
     const savedWishlist = localStorage.getItem("wishlist");
 
     return savedWishlist ? JSON.parse(savedWishlist) : [];
-  });
-  const [visibleRange, setVisibleRange] = useState({
-    start: 0,
-    end: 0,
   });
 
   const updateSwiperState = (swiper) => {
@@ -53,18 +72,52 @@ export default function NowPlaying() {
       end: swiper.activeIndex + slidesPerView - 1,
     });
   };
+
   useEffect(() => {
-    const getPopularData = async () => {
+    const getTrailerData = async () => {
       try {
         setLoading(true);
 
         const [movieResponse, tvResponse] = await Promise.all([
-          getPopularMovies(),
-          getPopularTv(),
+          getUpcomingMovies(),
+          getUpcomingTv(),
         ]);
 
-        const movieList = await addGenreNames(movieResponse.results, "movie");
-        const tvList = await addGenreNames(tvResponse.results, "tv");
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const upcomingMovies = movieResponse.results
+          .filter((item) => {
+            if (!item.release_date) return false;
+
+            const releaseDate = new Date(`${item.release_date}T00:00:00`);
+
+            return releaseDate >= today;
+          })
+          .sort((a, b) => {
+            const dateA = new Date(`${a.release_date}T00:00:00`);
+            const dateB = new Date(`${b.release_date}T00:00:00`);
+
+            return dateA - dateB;
+          });
+
+        const upcomingTv = tvResponse.results
+          .filter((item) => {
+            if (!item.first_air_date) return false;
+
+            const firstAirDate = new Date(`${item.first_air_date}T00:00:00`);
+
+            return firstAirDate >= today;
+          })
+          .sort((a, b) => {
+            const dateA = new Date(`${a.first_air_date}T00:00:00`);
+            const dateB = new Date(`${b.first_air_date}T00:00:00`);
+
+            return dateA - dateB;
+          });
+
+        const movieList = await addGenreNames(upcomingMovies, "movie");
+        const tvList = await addGenreNames(upcomingTv, "tv");
 
         setMovieData(movieList);
         setTvData(tvList);
@@ -75,7 +128,7 @@ export default function NowPlaying() {
       }
     };
 
-    getPopularData();
+    getTrailerData();
 
     return () => {
       clearTimeout(hoverTimer.current);
@@ -95,7 +148,6 @@ export default function NowPlaying() {
 
   const handleTab = (tab) => {
     resetHover();
-
     setActiveTab(tab);
 
     setTimeout(() => {
@@ -140,19 +192,19 @@ export default function NowPlaying() {
   if (loading) return null;
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
+    <section className="relative overflow-x-clip bg-black/96 py-[50px]">
       {/* 제목 및 탭 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          현재 인기있는 콘텐츠
+          공개 예정 콘텐츠
         </h2>
 
-        <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">
+        <div className="flex gap-2 rounded-4xl bg-white/10 px-2 py-2">
           <button
             type="button"
             onClick={() => handleTab("movie")}
             className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "movie" ? "bg-[#33ddff] text-black" : " text-white"
+              activeTab === "movie" ? "bg-[#33ddff] text-black" : "text-white"
             }`}
           >
             영화
@@ -162,7 +214,7 @@ export default function NowPlaying() {
             type="button"
             onClick={() => handleTab("tv")}
             className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "tv" ? "bg-[#33ddff] text-black" : " text-white"
+              activeTab === "tv" ? "bg-[#33ddff] text-black" : "text-white"
             }`}
           >
             시리즈
@@ -176,6 +228,7 @@ export default function NowPlaying() {
           <button
             type="button"
             onClick={() => swiperRef.current?.slidePrev()}
+            aria-label="이전 콘텐츠"
             className="
               absolute
               top-0
@@ -187,10 +240,9 @@ export default function NowPlaying() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               lg:flex
-            bg-black/50
-
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -246,12 +298,6 @@ export default function NowPlaying() {
         >
           {currentData.map((item, index) => {
             if (!item.backdrop_path) return null;
-            const previewPosition =
-              index === visibleRange.start
-                ? "left"
-                : index === visibleRange.end
-                  ? "right"
-                  : "center";
 
             const mediaType = activeTab;
             const cardId = `${mediaType}-${item.id}`;
@@ -261,10 +307,17 @@ export default function NowPlaying() {
             const date =
               mediaType === "movie" ? item.release_date : item.first_air_date;
 
-            const year = date?.slice(0, 4);
+            const dDay = getDDay(date);
 
             const detailPath =
               mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
+
+            const previewPosition =
+              index === visibleRange.start
+                ? "left"
+                : index === visibleRange.end
+                  ? "right"
+                  : "center";
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
@@ -289,10 +342,8 @@ export default function NowPlaying() {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 hover 카드 숨김
                   setVisibleId(null);
 
-                  // 사라지는 애니메이션이 끝난 뒤 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -325,9 +376,13 @@ export default function NowPlaying() {
                     </h3>
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
-                      <span>★ {item.vote_average?.toFixed(1)}</span>
+                      {dDay && (
+                        <span className="font-semibold text-[#33ddff]">
+                          {dDay}
+                        </span>
+                      )}
 
-                      {year && <span>{year}</span>}
+                      {date && <span>{date.replaceAll("-", ".")}</span>}
                     </div>
                   </div>
                 </Link>
@@ -341,6 +396,7 @@ export default function NowPlaying() {
                   isWishlisted={isWishlisted}
                   handleWishlist={handleWishlist}
                   position={previewPosition}
+                  infoType="release"
                 />
               </SwiperSlide>
             );
@@ -351,6 +407,7 @@ export default function NowPlaying() {
           <button
             type="button"
             onClick={() => swiperRef.current?.slideNext()}
+            aria-label="다음 콘텐츠"
             className="
               absolute
               top-0
@@ -362,9 +419,9 @@ export default function NowPlaying() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               md:flex
-              bg-black/50
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

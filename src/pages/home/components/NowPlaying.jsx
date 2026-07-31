@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import HoverPreviewCard from "../../../components/cards/HoverPreviewCard";
+import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 
 import "swiper/css";
 
@@ -145,7 +145,7 @@ export default function NowPlaying() {
       {/* 제목 및 탭 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          현재 상영 / 방영 중인 곤텐츠
+          현재 상영 / 방영 중인 콘텐츠
         </h2>
 
         <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">

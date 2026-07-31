@@ -1,12 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/home/Home";
-import MovieList from "../pages/movie/MovieList";
+import Movie from "../pages/movie/Movie";
 import MovieDetail from "../pages/movie/MovieDetail";
-import TvList from "../pages/tv/TvList";
+import Tv from "../pages/tv/Tv";
 import TvDetail from "../pages/tv/TvDetail";
 import PersonDetail from "../pages/people/PersonDetail";
-import PeopleList from "../pages/people/PeopleList";
+import People from "../pages/people/People";
 import MyPage from "../pages/mypage/MyPage";
 import Search from "../pages/search/Search";
 import Signup from "../pages/signup/Signup";
@@ -18,13 +18,13 @@ export default function Router() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/movie" element={<MovieList />} />
+          <Route path="/movie" element={<Movie />} />
           <Route path="/movie/:movieId" element={<MovieDetail />} />
 
-          <Route path="/tv" element={<TvList />} />
+          <Route path="/tv" element={<Tv />} />
           <Route path="/tv/:tvId" element={<TvDetail />} />
 
-          <Route path="/people" element={<PeopleList />} />
+          <Route path="/people" element={<People />} />
           <Route path="/people/:personId" element={<PersonDetail />} />
           <Route path="/wishlist" element={<Wishlist />} />
         </Route>

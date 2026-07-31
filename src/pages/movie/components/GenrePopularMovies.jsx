@@ -3,21 +3,19 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
-
+import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
 import "swiper/css";
 
-import { getTopRatedMovies } from "../../../api/movieApi";
-import { getTopRatedTv } from "../../../api/tvApi";
+import { getPopularMoviesByGenre } from "../../../api/movieApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
-export default function TopRated() {
+
+export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("movie");
   const [movieData, setMovieData] = useState([]);
-  const [tvData, setTvData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [isBeginning, setIsBeginning] = useState(true);
@@ -34,6 +32,7 @@ export default function TopRated() {
 
     return savedWishlist ? JSON.parse(savedWishlist) : [];
   });
+
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
@@ -53,37 +52,40 @@ export default function TopRated() {
       end: swiper.activeIndex + slidesPerView - 1,
     });
   };
+
   useEffect(() => {
-    const getTopRatedData = async () => {
+    if (!selectedGenre) return;
+
+    const getGenrePopularMovies = async () => {
       try {
         setLoading(true);
 
-        const [movieResponse, tvResponse] = await Promise.all([
-          getTopRatedMovies(),
-          getTopRatedTv(),
-        ]);
+        const movieResponse = await getPopularMoviesByGenre(selectedGenre.id);
 
         const movieList = await addGenreNames(movieResponse.results, "movie");
-        const tvList = await addGenreNames(tvResponse.results, "tv");
 
         setMovieData(movieList);
-        setTvData(tvList);
+
+        setTimeout(() => {
+          swiperRef.current?.slideTo(0);
+          setIsBeginning(true);
+          setIsEnd(false);
+        }, 0);
       } catch (error) {
         console.log(error);
+        setMovieData([]);
       } finally {
         setLoading(false);
       }
     };
 
-    getTopRatedData();
+    getGenrePopularMovies();
 
     return () => {
       clearTimeout(hoverTimer.current);
       clearTimeout(closeTimer.current);
     };
-  }, []);
-
-  const currentData = activeTab === "movie" ? movieData : tvData;
+  }, [selectedGenre]);
 
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
@@ -93,25 +95,13 @@ export default function TopRated() {
     setHoveredId(null);
   };
 
-  const handleTab = (tab) => {
-    resetHover();
-
-    setActiveTab(tab);
-
-    setTimeout(() => {
-      swiperRef.current?.slideTo(0);
-      setIsBeginning(true);
-      setIsEnd(false);
-    }, 0);
-  };
-
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: activeTab,
+      media_type: "movie",
     };
 
     setWishlist((prev) => {
@@ -137,37 +127,15 @@ export default function TopRated() {
     });
   };
 
-  if (loading) return null;
+  if (!selectedGenre || loading) return <ContentsSkeleton />;
 
   return (
     <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
-      {/* 제목 및 탭 */}
+      {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          평점 높은 콘텐츠
+          <span className="text-[#33ddff]">{heroTitle}</span> 와 비슷한 영화
         </h2>
-
-        <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">
-          <button
-            type="button"
-            onClick={() => handleTab("movie")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "movie" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            영화
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTab("tv")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "tv" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            시리즈
-          </button>
-        </div>
       </div>
 
       {/* Swiper 영역 */}
@@ -187,10 +155,9 @@ export default function TopRated() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               lg:flex
-            bg-black/50
-
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -198,7 +165,7 @@ export default function TopRated() {
         )}
 
         <Swiper
-          key={activeTab}
+          key={selectedGenre.id}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -244,8 +211,9 @@ export default function TopRated() {
             },
           }}
         >
-          {currentData.map((item, index) => {
+          {movieData.map((item, index) => {
             if (!item.backdrop_path) return null;
+
             const previewPosition =
               index === visibleRange.start
                 ? "left"
@@ -253,18 +221,11 @@ export default function TopRated() {
                   ? "right"
                   : "center";
 
-            const mediaType = activeTab;
-            const cardId = `${mediaType}-${item.id}`;
-
-            const title = mediaType === "movie" ? item.title : item.name;
-
-            const date =
-              mediaType === "movie" ? item.release_date : item.first_air_date;
-
-            const year = date?.slice(0, 4);
-
-            const detailPath =
-              mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
+            const mediaType = "movie";
+            const cardId = `movie-${item.id}`;
+            const title = item.title;
+            const year = item.release_date?.slice(0, 4);
+            const detailPath = `/movie/${item.id}`;
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
@@ -289,10 +250,8 @@ export default function TopRated() {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 hover 카드 숨김
                   setVisibleId(null);
 
-                  // 사라지는 애니메이션이 끝난 뒤 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -309,13 +268,13 @@ export default function TopRated() {
                     <img
                       src={`${ORIGINAL_URL}${item.backdrop_path}`}
                       alt={title}
-                      className={`
+                      className="
                         h-full
                         w-full
                         object-cover
                         transition-transform
                         duration-300
-                      `}
+                      "
                     />
                   </div>
 
@@ -362,9 +321,9 @@ export default function TopRated() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               md:flex
-              bg-black/50
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

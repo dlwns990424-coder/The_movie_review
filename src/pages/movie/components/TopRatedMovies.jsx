@@ -5,19 +5,16 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 
 import "swiper/css";
-
+import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
 import { getTopRatedMovies } from "../../../api/movieApi";
-import { getTopRatedTv } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
-export default function TopRated() {
+export default function TopRatedMovies() {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("movie");
   const [movieData, setMovieData] = useState([]);
-  const [tvData, setTvData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [isBeginning, setIsBeginning] = useState(true);
@@ -58,16 +55,11 @@ export default function TopRated() {
       try {
         setLoading(true);
 
-        const [movieResponse, tvResponse] = await Promise.all([
-          getTopRatedMovies(),
-          getTopRatedTv(),
-        ]);
+        const movieResponse = await getTopRatedMovies();
 
         const movieList = await addGenreNames(movieResponse.results, "movie");
-        const tvList = await addGenreNames(tvResponse.results, "tv");
 
         setMovieData(movieList);
-        setTvData(tvList);
       } catch (error) {
         console.log(error);
       } finally {
@@ -83,7 +75,7 @@ export default function TopRated() {
     };
   }, []);
 
-  const currentData = activeTab === "movie" ? movieData : tvData;
+  const currentData = movieData;
 
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
@@ -93,25 +85,13 @@ export default function TopRated() {
     setHoveredId(null);
   };
 
-  const handleTab = (tab) => {
-    resetHover();
-
-    setActiveTab(tab);
-
-    setTimeout(() => {
-      swiperRef.current?.slideTo(0);
-      setIsBeginning(true);
-      setIsEnd(false);
-    }, 0);
-  };
-
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: activeTab,
+      media_type: "movie",
     };
 
     setWishlist((prev) => {
@@ -137,7 +117,7 @@ export default function TopRated() {
     });
   };
 
-  if (loading) return null;
+  if (loading) return <ContentsSkeleton />;
 
   return (
     <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
@@ -146,28 +126,6 @@ export default function TopRated() {
         <h2 className="text-2xl font-bold text-white md:text-[24px]">
           평점 높은 콘텐츠
         </h2>
-
-        <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">
-          <button
-            type="button"
-            onClick={() => handleTab("movie")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "movie" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            영화
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTab("tv")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "tv" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            시리즈
-          </button>
-        </div>
       </div>
 
       {/* Swiper 영역 */}
@@ -198,7 +156,6 @@ export default function TopRated() {
         )}
 
         <Swiper
-          key={activeTab}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -253,18 +210,16 @@ export default function TopRated() {
                   ? "right"
                   : "center";
 
-            const mediaType = activeTab;
+            const mediaType = "movie";
             const cardId = `${mediaType}-${item.id}`;
 
-            const title = mediaType === "movie" ? item.title : item.name;
+            const title = item.title;
 
-            const date =
-              mediaType === "movie" ? item.release_date : item.first_air_date;
+            const date = item.release_date;
 
             const year = date?.slice(0, 4);
 
-            const detailPath =
-              mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
+            const detailPath = `/movie/${item.id}`;
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
