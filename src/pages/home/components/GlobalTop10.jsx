@@ -1,22 +1,64 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { W500_URL } from "../../../constants/imageUrl";
-import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import HoverPreviewCard from "../../../components/cards/HoverPreviewCard";
 
 import "swiper/css";
 
+import { W500_URL } from "../../../constants/imageUrl";
+
 export default function GlobalTop10({ items }) {
   const swiperRef = useRef(null);
+  const hoverTimer = useRef(null);
+  const closeTimer = useRef(null);
 
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+
+  // z-index를 유지하는 카드
+  const [hoveredId, setHoveredId] = useState(null);
+
+  // 실제 hover 미리보기 표시 여부
+  const [visibleId, setVisibleId] = useState(null);
 
   const [wishlist, setWishlist] = useState(() => {
     const savedWishlist = localStorage.getItem("wishlist");
 
     return savedWishlist ? JSON.parse(savedWishlist) : [];
   });
+  const [visibleRange, setVisibleRange] = useState({
+    start: 0,
+    end: 0,
+  });
+  const updateSwiperState = (swiper) => {
+    setIsBeginning(swiper.isBeginning);
+    setIsEnd(swiper.isEnd);
+
+    const slidesPerView =
+      typeof swiper.params.slidesPerView === "number"
+        ? swiper.params.slidesPerView
+        : 1;
+
+    setVisibleRange({
+      start: swiper.activeIndex,
+      end: swiper.activeIndex + slidesPerView - 1,
+    });
+  };
+  useEffect(() => {
+    return () => {
+      clearTimeout(hoverTimer.current);
+      clearTimeout(closeTimer.current);
+    };
+  }, []);
+
+  const resetHover = () => {
+    clearTimeout(hoverTimer.current);
+    clearTimeout(closeTimer.current);
+
+    setVisibleId(null);
+    setHoveredId(null);
+  };
 
   const handleWishlist = (e, item) => {
     e.preventDefault();
@@ -45,7 +87,7 @@ export default function GlobalTop10({ items }) {
   };
 
   return (
-    <section className="relative bg-black">
+    <section className="relative overflow-x-clip  bg-black">
       <h2 className="mx-5 mb-8 pt-[50px] text-3xl font-bold text-white md:mx-[40px] lg:mx-[60px]">
         오늘의 글로벌 TOP 10
       </h2>
@@ -61,7 +103,7 @@ export default function GlobalTop10({ items }) {
               top-0
               bottom-0
               left-0
-              z-[100]
+              z-[200]
               hidden
               w-10
               cursor-pointer
@@ -81,16 +123,15 @@ export default function GlobalTop10({ items }) {
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
-            setIsBeginning(swiper.isBeginning);
-            setIsEnd(swiper.isEnd);
+            updateSwiperState(swiper);
           }}
           onSlideChange={(swiper) => {
-            setIsBeginning(swiper.isBeginning);
-            setIsEnd(swiper.isEnd);
+            resetHover();
+            updateSwiperState(swiper);
           }}
-          slidesPerView={2}
-          slidesPerGroup={2}
-          spaceBetween={0}
+          onBreakpoint={(swiper) => {
+            updateSwiperState(swiper);
+          }}
           breakpoints={{
             0: {
               slidesPerView: 2,
@@ -125,35 +166,67 @@ export default function GlobalTop10({ items }) {
           }}
         >
           {items.map((item, index) => {
+            if (!item.poster_path) return null;
+            const previewPosition =
+              index === visibleRange.start
+                ? "left"
+                : index === visibleRange.end
+                  ? "right"
+                  : "center";
+            const mediaType = item.media_type;
+            const cardId = `${mediaType}-${item.id}`;
+
             const detailPath =
-              item.media_type === "movie"
-                ? `/movie/${item.id}`
-                : `/tv/${item.id}`;
+              mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
 
             const title = item.title || item.name;
 
-            const date = (item.release_date || item.first_air_date)?.slice(
-              0,
-              4,
-            );
+            const date =
+              mediaType === "movie" ? item.release_date : item.first_air_date;
+
+            const year = date?.slice(0, 4);
+
+            const isHovered = hoveredId === cardId;
+            const isVisible = visibleId === cardId;
+
             const isWishlisted = wishlist.some(
               (savedItem) =>
-                savedItem.id === item.id &&
-                savedItem.media_type === item.media_type,
+                savedItem.id === item.id && savedItem.media_type === mediaType,
             );
+
             return (
               <SwiperSlide
-                key={`${item.media_type}-${item.id}`}
-                className="
-                  group
+                key={cardId}
+                onMouseEnter={() => {
+                  clearTimeout(hoverTimer.current);
+                  clearTimeout(closeTimer.current);
+
+                  hoverTimer.current = setTimeout(() => {
+                    setHoveredId(cardId);
+                    setVisibleId(cardId);
+                  }, 500);
+                }}
+                onMouseLeave={() => {
+                  clearTimeout(hoverTimer.current);
+
+                  // 먼저 hover 카드 숨김
+                  setVisibleId(null);
+
+                  // 애니메이션 종료 후 z-index 제거
+                  closeTimer.current = setTimeout(() => {
+                    setHoveredId(null);
+                  }, 300);
+                }}
+                className={`
                   relative
                   pl-[30px]
-                  hover:!z-50
+                  transition
                   xl:pl-[70px]
-                "
+                  ${isHovered ? "!z-[150]" : "!z-0"}
+                `}
               >
+                {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
-                  {/* 기본 카드 */}
                   <div className="relative">
                     {/* 순위 숫자 */}
                     <div
@@ -203,7 +276,6 @@ export default function GlobalTop10({ items }) {
                         rounded-xl
                         transition-transform
                         duration-300
-                        group-hover:scale-105
                         md:w-[170px]
                         xl:w-[220px]
                       "
@@ -211,14 +283,14 @@ export default function GlobalTop10({ items }) {
                       <img
                         src={`${W500_URL}${item.poster_path}`}
                         alt={title}
-                        className="
+                        className={`
                           h-full
                           w-full
                           object-cover
                           transition-transform
                           duration-300
-                          group-hover:scale-105
-                        "
+                          ${isVisible ? "scale-105" : "scale-100"}
+                        `}
                       />
 
                       <div
@@ -237,7 +309,7 @@ export default function GlobalTop10({ items }) {
                     </div>
                   </div>
 
-                  {/* 기본 카드 제목 */}
+                  {/* 제목 및 정보 */}
                   <div className="absolute right-0 bottom-2 left-4 z-20 px-2">
                     <h3
                       className="
@@ -256,95 +328,23 @@ export default function GlobalTop10({ items }) {
                     </h3>
 
                     <div className="mt-1 flex items-center gap-2 pl-[20px] text-[12px] text-white/70 md:text-[13px] xl:pl-[60px]">
-                      <span>{date}</span>
+                      {year && <span>{year}</span>}
+
                       <span>★ {item.vote_average?.toFixed(1)}</span>
                     </div>
                   </div>
-
-                  {/* hover 상세 미리보기 카드 */}
-                  <div
-                    className="
-                      invisible
-                      absolute
-                      top-1/2
-                      left-1/2
-                      z-[100]
-                      hidden
-                      w-[400px]
-                      -translate-x-1/2
-                      -translate-y-1/2
-                      scale-90
-                      overflow-hidden
-                      rounded-xl
-                      bg-[#181818]
-                      opacity-0
-                      shadow-2xl
-                      transition-all
-                      duration-300
-
-                      md:block
-
-                      group-hover:visible
-                      group-hover:scale-100
-                      group-hover:opacity-100
-                    "
-                  >
-                    <div className="aspect-video w-full bg-white/10">
-                      <img
-                        src={`${W500_URL}${
-                          item.backdrop_path || item.poster_path
-                        }`}
-                        alt={title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <h3 className="min-w-0 truncate text-lg font-bold text-white">
-                          {title}
-                        </h3>
-
-                        <button
-                          type="button"
-                          onClick={(e) => handleWishlist(e, item)}
-                          aria-label={isWishlisted ? "찜 해제" : "찜하기"}
-                          className={`
-                            flex h-11 w-11 shrink-0 cursor-pointer
-                            items-center justify-center rounded-full border transition
-                            ${
-                              isWishlisted
-                                ? "text-[#33ddff] scale-[120%]"
-                                : "text-white hover:text-[#33ddff] "
-                            }
-                          `}
-                        >
-                          <Heart
-                            size={18}
-                            strokeWidth={1.8}
-                            fill={isWishlisted ? "currentColor" : "none"}
-                          />
-                        </button>
-                      </div>
-
-                      <div className="mt-2 flex items-center gap-3 text-sm text-white/70">
-                        <span className="text-[#33ddff]">
-                          ★ {item.vote_average?.toFixed(1)}
-                        </span>
-
-                        {date && <span>{date}</span>}
-
-                        <span>
-                          {item.media_type === "movie" ? "영화" : "시리즈"}
-                        </span>
-                      </div>
-
-                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/60">
-                        {item.overview || "등록된 줄거리 정보가 없습니다."}
-                      </p>
-                    </div>
-                  </div>
                 </Link>
+
+                {/* 공통 hover 미리보기 카드 */}
+                <HoverPreviewCard
+                  item={item}
+                  mediaType={mediaType}
+                  detailPath={detailPath}
+                  isVisible={isVisible}
+                  isWishlisted={isWishlisted}
+                  handleWishlist={handleWishlist}
+                  position={previewPosition}
+                />
               </SwiperSlide>
             );
           })}
@@ -360,7 +360,7 @@ export default function GlobalTop10({ items }) {
               top-0
               right-0
               bottom-0
-              z-[100]
+              z-[200]
               flex
               w-10
               cursor-pointer
