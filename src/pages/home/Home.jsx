@@ -7,6 +7,7 @@ import ContentHero from "../../components/sections/ContentHero";
 import GlobalTop10 from "./components/GlobalTop10";
 import PopularContent from "./components/PopularContent";
 import NowPlaying from "./components/NowPlaying";
+import TopRated from "./components/TopRated";
 
 export default function Home() {
   // Hero에 사용할 기본 콘텐츠 정보
@@ -105,6 +106,7 @@ export default function Home() {
       <GlobalTop10 items={top10List} />
       <PopularContent />
       <NowPlaying />
+      <TopRated />
     </div>
   );
 }

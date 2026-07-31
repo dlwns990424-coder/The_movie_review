@@ -88,7 +88,7 @@ export default function GlobalTop10({ items }) {
 
   return (
     <section className="relative overflow-x-clip  bg-black">
-      <h2 className="mx-5 mb-8 pt-[50px] text-3xl font-bold text-white md:mx-[40px] lg:mx-[60px]">
+      <h2 className="mx-5 mb-8 pt-[50px] text-2xl md:text-[24px] font-bold text-white md:mx-[40px] lg:mx-[60px]">
         오늘의 글로벌 TOP 10
       </h2>
 

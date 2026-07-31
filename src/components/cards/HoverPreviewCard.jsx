@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
-import { W500_URL } from "../../constants/imageUrl";
+import TrailerPreviewMedia from "./TrailerPreviewMedia";
 
 export default function HoverPreviewCard({
   item,
@@ -48,13 +48,14 @@ export default function HoverPreviewCard({
       `}
     >
       <Link to={detailPath} className="block">
-        <div className="aspect-video w-full bg-white/10">
-          <img
-            src={`${W500_URL}${item.backdrop_path || item.poster_path}`}
-            alt={title}
-            className="h-full w-full object-cover"
-          />
-        </div>
+        <TrailerPreviewMedia
+          itemId={item.id}
+          mediaType={mediaType}
+          backdropPath={item.backdrop_path || item.poster_path}
+          title={title}
+          isActive={isVisible}
+          videoPriority={["Clip", "Trailer", "Teaser"]}
+        />
       </Link>
 
       <div className="p-4">

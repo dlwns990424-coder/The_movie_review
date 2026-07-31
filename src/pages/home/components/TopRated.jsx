@@ -6,11 +6,11 @@ import HoverPreviewCard from "../../../components/cards/HoverPreviewCard";
 
 import "swiper/css";
 
-import { getPopularMovies } from "../../../api/movieApi";
-import { getPopularTv } from "../../../api/tvApi";
+import { getTopRatedMovies } from "../../../api/movieApi";
+import { getTopRatedTv } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 
-export default function NowPlaying() {
+export default function TopRated() {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
@@ -54,13 +54,13 @@ export default function NowPlaying() {
     });
   };
   useEffect(() => {
-    const getPopularData = async () => {
+    const getTopRatedData = async () => {
       try {
         setLoading(true);
 
         const [movieResponse, tvResponse] = await Promise.all([
-          getPopularMovies(),
-          getPopularTv(),
+          getTopRatedMovies(),
+          getTopRatedTv(),
         ]);
 
         setMovieData(movieResponse.results);
@@ -72,7 +72,7 @@ export default function NowPlaying() {
       }
     };
 
-    getPopularData();
+    getTopRatedData();
 
     return () => {
       clearTimeout(hoverTimer.current);
@@ -141,7 +141,7 @@ export default function NowPlaying() {
       {/* 제목 및 탭 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          현재 인기있는 콘텐츠
+          평점 높은 콘텐츠
         </h2>
 
         <div className="flex gap-2">
