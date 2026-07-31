@@ -51,7 +51,6 @@ const findVideo = (videos, videoPriority) => {
     (video) => video.site === "YouTube" && video.key && video.size >= 720,
   );
 
-  // 1순위: 이름에 Official Trailer가 들어간 공식 영상
   const officialTrailer = youtubeVideos.find(
     (video) =>
       video.official &&
@@ -63,7 +62,6 @@ const findVideo = (videos, videoPriority) => {
     return officialTrailer;
   }
 
-  // 2순위부터는 전달받은 우선순위 배열대로 찾기
   for (const type of videoPriority) {
     const officialVideo = youtubeVideos.find(
       (video) =>
@@ -104,6 +102,24 @@ export default function TrailerPreviewMedia({
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [hasError, setHasError] = useState(false);
+
+  // Hover 후 1.5초가 지났는지 확인
+  const [isDelayFinished, setIsDelayFinished] = useState(false);
+
+  useEffect(() => {
+    if (!isActive) {
+      setIsDelayFinished(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setIsDelayFinished(true);
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isActive, itemId]);
 
   useEffect(() => {
     if (!isActive || !itemId || !mediaType) {
@@ -230,9 +246,11 @@ export default function TrailerPreviewMedia({
     setIsVideoLoading(false);
     setIsPlayerReady(false);
     setHasError(false);
+    setIsDelayFinished(false);
   }, [isActive]);
 
-  const showVideo = isActive && videoKey && isPlayerReady && !hasError;
+  const showVideo =
+    isActive && isDelayFinished && videoKey && isPlayerReady && !hasError;
 
   return (
     <div className="relative aspect-video w-full overflow-hidden bg-black">
@@ -256,23 +274,13 @@ export default function TrailerPreviewMedia({
 
       {videoKey && !hasError && (
         <div
-          className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${
+          className={`pointer-events-none absolute inset-0 scale-170 transition-opacity duration-500 ${
             showVideo ? "opacity-100" : "opacity-0"
           }`}
         >
           <div ref={playerElementRef} className="h-full w-full" />
         </div>
       )}
-
-      {isActive &&
-        (isVideoLoading || (videoKey && !isPlayerReady)) &&
-        !hasError && (
-          <div className="pointer-events-none absolute bottom-3 right-3">
-            <span className="rounded bg-black/60 px-2 py-1 text-xs text-white">
-              영상 로딩 중
-            </span>
-          </div>
-        )}
     </div>
   );
 }

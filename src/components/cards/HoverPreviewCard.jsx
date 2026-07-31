@@ -1,6 +1,28 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import TrailerPreviewMedia from "./TrailerPreviewMedia";
+import { getContentDetail } from "../../api/contentApi";
+import { CLIP_PRIORITY } from "../../constants/videoPriority";
+
+const detailCache = new Map();
+
+const getDDay = (date) => {
+  if (!date) return null;
+
+  const today = new Date();
+  const releaseDate = new Date(`${date}T00:00:00`);
+
+  today.setHours(0, 0, 0, 0);
+
+  const difference = releaseDate.getTime() - today.getTime();
+  const days = Math.ceil(difference / (1000 * 60 * 60 * 24));
+
+  if (days > 0) return `D-${days}`;
+  if (days === 0) return "D-DAY";
+
+  return "공개됨";
+};
 
 export default function HoverPreviewCard({
   item,
@@ -10,18 +32,56 @@ export default function HoverPreviewCard({
   isWishlisted,
   handleWishlist,
   position = "center",
+  infoType = "rating",
 }) {
+  const [detail, setDetail] = useState(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+
   const title = mediaType === "movie" ? item.title : item.name;
 
   const date = mediaType === "movie" ? item.release_date : item.first_air_date;
 
   const year = date?.slice(0, 4);
+  const dDay = getDDay(date);
+
+  const genreNames =
+    detail?.genres?.map((genre) => genre.name).slice(0, 3) || [];
 
   const positionClass = {
     left: "left-0 translate-x-0",
     center: "left-1/2 -translate-x-1/2",
     right: "right-0 left-auto translate-x-0",
   }[position];
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const cacheKey = `${mediaType}-${item.id}`;
+
+    const loadDetail = async () => {
+      try {
+        setIsDetailLoading(true);
+
+        if (detailCache.has(cacheKey)) {
+          setDetail(detailCache.get(cacheKey));
+          return;
+        }
+
+        const detailData = await getContentDetail(mediaType, item.id);
+
+        detailCache.set(cacheKey, detailData);
+        setDetail(detailData);
+      } catch (error) {
+        console.log("Hover 상세정보 요청 실패:", error);
+      } finally {
+        setIsDetailLoading(false);
+      }
+    };
+
+    loadDetail();
+  }, [isVisible, mediaType, item.id]);
+
+  const canShowHover = isVisible && !isDetailLoading && detail;
 
   return (
     <div
@@ -41,7 +101,7 @@ export default function HoverPreviewCard({
         md:block
         ${positionClass}
         ${
-          isVisible
+          canShowHover
             ? "visible scale-100 opacity-100"
             : "pointer-events-none invisible scale-90 opacity-0"
         }
@@ -53,8 +113,8 @@ export default function HoverPreviewCard({
           mediaType={mediaType}
           backdropPath={item.backdrop_path || item.poster_path}
           title={title}
-          isActive={isVisible}
-          videoPriority={["Clip", "Trailer", "Teaser"]}
+          isActive={canShowHover}
+          videoPriority={CLIP_PRIORITY}
         />
       </Link>
 
@@ -71,8 +131,16 @@ export default function HoverPreviewCard({
             onClick={(e) => handleWishlist(e, item)}
             aria-label={isWishlisted ? "찜 해제" : "찜하기"}
             className={`
-              flex h-11 w-11 shrink-0 cursor-pointer
-              items-center justify-center rounded-full border transition
+              flex
+              h-11
+              w-11
+              shrink-0
+              cursor-pointer
+              items-center
+              justify-center
+              rounded-full
+              border
+              transition
               ${
                 isWishlisted
                   ? "scale-[120%] text-[#33ddff]"
@@ -88,19 +156,58 @@ export default function HoverPreviewCard({
           </button>
         </div>
 
-        <div className="mt-2 flex items-center gap-3 text-sm text-white/70">
-          <span className="text-[#33ddff]">
-            ★ {item.vote_average?.toFixed(1)}
-          </span>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/70">
+          {infoType === "release" ? (
+            <>
+              {dDay && (
+                <span className="font-semibold text-[#33ddff]">{dDay}</span>
+              )}
 
-          {year && <span>{year}</span>}
+              <span>{mediaType === "movie" ? "영화" : "시리즈"}</span>
 
-          <span>{mediaType === "movie" ? "영화" : "시리즈"}</span>
+              {date && <span>{date.replaceAll("-", ".")}</span>}
+            </>
+          ) : (
+            <>
+              <span className="text-[#33ddff]">
+                ★ {item.vote_average?.toFixed(1)}
+              </span>
+
+              <span>{mediaType === "movie" ? "영화" : "시리즈"}</span>
+
+              {year && <span>{year}</span>}
+            </>
+          )}
+
+          {genreNames.length > 0 && <span>{genreNames.join(" · ")}</span>}
         </div>
 
         <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/60">
           {item.overview || "등록된 줄거리 정보가 없습니다."}
         </p>
+
+        <Link
+          to={detailPath}
+          className="
+            mt-5
+            flex
+            h-11
+            w-full
+            items-center
+            justify-center
+            rounded-lg
+            bg-[#33ddff]
+            text-sm
+            font-semibold
+            text-black
+            transition-all
+            duration-200
+            hover:bg-[#5be5ff]
+            active:scale-[0.98]
+          "
+        >
+          상세 보기
+        </Link>
       </div>
     </div>
   );

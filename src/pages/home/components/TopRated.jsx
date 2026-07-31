@@ -9,7 +9,7 @@ import "swiper/css";
 import { getTopRatedMovies } from "../../../api/movieApi";
 import { getTopRatedTv } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
-
+import { addGenreNames } from "../../../lib/genreUtils";
 export default function TopRated() {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
@@ -63,8 +63,11 @@ export default function TopRated() {
           getTopRatedTv(),
         ]);
 
-        setMovieData(movieResponse.results);
-        setTvData(tvResponse.results);
+        const movieList = await addGenreNames(movieResponse.results, "movie");
+        const tvList = await addGenreNames(tvResponse.results, "tv");
+
+        setMovieData(movieList);
+        setTvData(tvList);
       } catch (error) {
         console.log(error);
       } finally {
@@ -137,21 +140,19 @@ export default function TopRated() {
   if (loading) return null;
 
   return (
-    <section className="relative overflow-x-clip bg-black pt-[50px]">
+    <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
       {/* 제목 및 탭 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-2xl font-bold text-white md:text-[24px]">
           평점 높은 콘텐츠
         </h2>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">
           <button
             type="button"
             onClick={() => handleTab("movie")}
-            className={`cursor-pointer rounded-full px-4 py-2 text-sm transition ${
-              activeTab === "movie"
-                ? "bg-[#33ddff] text-black"
-                : "bg-white/10 text-white"
+            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
+              activeTab === "movie" ? "bg-[#33ddff] text-black" : " text-white"
             }`}
           >
             영화
@@ -160,10 +161,8 @@ export default function TopRated() {
           <button
             type="button"
             onClick={() => handleTab("tv")}
-            className={`cursor-pointer rounded-full px-4 py-2 text-sm transition ${
-              activeTab === "tv"
-                ? "bg-[#33ddff] text-black"
-                : "bg-white/10 text-white"
+            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
+              activeTab === "tv" ? "bg-[#33ddff] text-black" : " text-white"
             }`}
           >
             시리즈
@@ -316,7 +315,6 @@ export default function TopRated() {
                         object-cover
                         transition-transform
                         duration-300
-                        ${isVisible ? "scale-105" : "scale-100"}
                       `}
                     />
                   </div>

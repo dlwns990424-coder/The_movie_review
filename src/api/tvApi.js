@@ -61,3 +61,27 @@ export const getTvDetail = async (tvId) => {
 
   return response.data;
 };
+
+// 공개 예정 시리즈
+// 공개 예정 시리즈
+export const getUpcomingTv = async (page = 1) => {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  const todayString = `${year}-${month}-${day}`;
+
+  const response = await axiosInstance.get("/discover/tv", {
+    params: {
+      page,
+      sort_by: "first_air_date.asc",
+      "first_air_date.gte": todayString,
+      include_null_first_air_dates: false,
+      with_original_language: "ko|en|ja",
+    },
+  });
+
+  return response.data;
+};

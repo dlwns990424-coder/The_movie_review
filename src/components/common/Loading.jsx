@@ -2,11 +2,11 @@ import { RotatingLines } from "react-loader-spinner";
 
 export default function Loading() {
   return (
-    <div className="w-full max-w-[1920px] h-screen bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
       <RotatingLines
         visible={true}
-        height="96"
-        width="96"
+        height="48"
+        width="48"
         color="#33ddff"
         strokeWidth="5"
         animationDuration="0.75"

@@ -76,11 +76,13 @@ export default function ContentHero({ item, detail, mediaType, heroLogo }) {
   return (
     <section className="w-full max-w-[1920px] overflow-hidden h-screen pt-[100px] px-[60px] pb-[20px] relative">
       <div
-        className="w-full overflow-hidden h-screen absolute top-0 left-0 -z-30 blur-3xl scale-140 brightness-20 bg-cover bg-center bg-no-repeat"
+        className="w-full overflow-hidden h-screen absolute top-0 left-0 -z-30 blur-3xl scale-140 brightness-50 bg-cover bg-center bg-no-repeat "
         style={{
           backgroundImage: `url(${ORIGINAL_URL}${item.backdrop_path})`,
         }}
       ></div>
+
+      <div className="absolute inset-0 -z-20 bg-gradient-to-t from-black/80 via-black/60 via-60% to-transparent" />
       <div
         className="w-full h-[100%]  rounded-3xl overflow-hidden relative bg-cover bg-center bg-no-repeat  "
         style={{

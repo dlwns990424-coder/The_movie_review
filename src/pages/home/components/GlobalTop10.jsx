@@ -87,7 +87,7 @@ export default function GlobalTop10({ items }) {
   };
 
   return (
-    <section className="relative overflow-x-clip  bg-black">
+    <section className="relative overflow-x-clip bg-black/96">
       <h2 className="mx-5 mb-8 pt-[50px] text-2xl md:text-[24px] font-bold text-white md:mx-[40px] lg:mx-[60px]">
         오늘의 글로벌 TOP 10
       </h2>
@@ -289,7 +289,6 @@ export default function GlobalTop10({ items }) {
                           object-cover
                           transition-transform
                           duration-300
-                          ${isVisible ? "scale-105" : "scale-100"}
                         `}
                       />
 

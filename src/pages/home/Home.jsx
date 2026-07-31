@@ -8,6 +8,8 @@ import GlobalTop10 from "./components/GlobalTop10";
 import PopularContent from "./components/PopularContent";
 import NowPlaying from "./components/NowPlaying";
 import TopRated from "./components/TopRated";
+import Trailer from "./components/Trailer";
+import PageTitle from "../../components/common/PageTitle";
 
 export default function Home() {
   // Hero에 사용할 기본 콘텐츠 정보
@@ -92,6 +94,7 @@ export default function Home() {
 
   return (
     <div>
+      <PageTitle />
       {/* Hero 데이터가 준비된 경우에만 출력 */}
       {heroItem && heroDetail && (
         <ContentHero
@@ -107,6 +110,7 @@ export default function Home() {
       <PopularContent />
       <NowPlaying />
       <TopRated />
+      <Trailer />
     </div>
   );
 }
