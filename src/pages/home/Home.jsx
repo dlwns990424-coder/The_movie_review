@@ -5,6 +5,8 @@ import { getLogo } from "../../api/logoImgApi";
 import Loading from "../../components/common/Loading";
 import ContentHero from "../../components/sections/ContentHero";
 import GlobalTop10 from "./components/GlobalTop10";
+import PopularContent from "./components/PopularContent";
+import NowPlaying from "./components/NowPlaying";
 
 export default function Home() {
   // Hero에 사용할 기본 콘텐츠 정보
@@ -101,6 +103,8 @@ export default function Home() {
 
       {/* TOP10 목록을 props로 전달 */}
       <GlobalTop10 items={top10List} />
+      <PopularContent />
+      <NowPlaying />
     </div>
   );
 }

@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { getNowPlayingMovies } from "../../../api/movieApi";
+import { getOnTheAirTv } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
-import { getPopularMovies } from "../../../api/movieApi";
-import { getPopularTv } from "../../../api/tvApi";
-export default function PopularContent() {
+export default function NowPlaying() {
   const swiperRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState("movie");
@@ -18,13 +18,13 @@ export default function PopularContent() {
   const [isEnd, setIsEnd] = useState(false);
 
   useEffect(() => {
-    const getPopularData = async () => {
+    const getNowPlayingData = async () => {
       try {
         setLoading(true);
 
         const [movieResponse, tvResponse] = await Promise.all([
-          getPopularMovies(),
-          getPopularTv(),
+          getNowPlayingMovies(),
+          getOnTheAirTv(),
         ]);
 
         setMovieData(movieResponse.results);
@@ -36,7 +36,7 @@ export default function PopularContent() {
       }
     };
 
-    getPopularData();
+    getNowPlayingData();
   }, []);
 
   const currentData = activeTab === "movie" ? movieData : tvData;
@@ -57,7 +57,7 @@ export default function PopularContent() {
     <section className="pt-[50px] md:pt-[50px] lg:pt-[50px] bg-black">
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-2xl font-bold text-white md:text-3xl">
-          현재 인기 콘텐츠
+          현재 상영 / 방영
         </h2>
 
         <div className="flex gap-2">

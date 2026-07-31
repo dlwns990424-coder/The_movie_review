@@ -1,6 +1,9 @@
 import { Link, NavLink } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export default function Header() {
+  const [open, setOpen] = useState(false);
   return (
     <header className="px-[20px] md:px-[40px] lg:px-[60px] w-full h-[60px] md:h-[80px] flex items-center justify-between bg-black/0 text-white fixed z-50">
       <div className="flex items-center">
@@ -10,7 +13,7 @@ export default function Header() {
           </h1>
         </Link>
 
-        <nav>
+        <nav className="hidden md:block">
           <ul className="flex justify-between space-x-10">
             <li>
               <NavLink
@@ -51,7 +54,7 @@ export default function Header() {
         </nav>
       </div>
 
-      <div className="space-x-10">
+      <div className="hidden md:block space-x-10">
         <Link
           to="/search"
           className="text-white hover:!text-[#33ddff] transition-colors"
@@ -73,6 +76,13 @@ export default function Header() {
           회원가입
         </Link>
       </div>
+
+      <button
+        onClick={() => setOpen(!open)}
+        className="md:hidden cursor-pointer"
+      >
+        {open ? <X size={28} /> : <Menu size={28} />}
+      </button>
     </header>
   );
 }

@@ -70,3 +70,14 @@ export const getMovieDetail = async (movieId) => {
 
   return response.data;
 };
+// 현재 상영 영화
+export const getNowPlayingMovies = async (page = 1) => {
+  const response = await axiosInstance.get("/movie/now_playing", {
+    params: {
+      page,
+      region: "KR",
+    },
+  });
+
+  return response.data;
+};
