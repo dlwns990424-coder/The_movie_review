@@ -2,7 +2,7 @@
 import axiosInstance from "./axiosInstance";
 
 // TV 페이지에서 사용할 장르 목록
-const TV_GENRES = [
+export const TV_GENRES = [
   {
     key: "kr-drama",
     id: 18,
@@ -86,7 +86,24 @@ const TV_GENRES = [
     name: "전쟁 & 정치",
   },
 ];
+export const getTvGenreName = (genreId, fallbackName = "") => {
+  const genre = TV_GENRES.find(
+    (item) =>
+      item.id === genreId &&
+      item.key !== "kr-drama" &&
+      item.key !== "foreign-drama",
+  );
 
+  if (genre) {
+    return genre.name;
+  }
+
+  if (genreId === 18) {
+    return "드라마";
+  }
+
+  return fallbackName;
+};
 // 시리즈 장르 목록
 export const getTvGenres = async () => {
   return [...new Map(TV_GENRES.map((genre) => [genre.key, genre])).values()];

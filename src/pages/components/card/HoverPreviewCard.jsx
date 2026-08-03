@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { getContentDetail } from "../../../api/contentApi";
-
+import { getTvGenreName } from "../../../api/tvApi";
 const detailCache = new Map();
 
 const getDDay = (date) => {
@@ -44,7 +44,11 @@ export default function HoverPreviewCard({
   const dDay = getDDay(date);
 
   const genreNames =
-    detail?.genres?.map((genre) => genre.name).slice(0, 3) || [];
+    detail?.genres
+      ?.map((genre) =>
+        mediaType === "tv" ? getTvGenreName(genre.id, genre.name) : genre.name,
+      )
+      .slice(0, 3) || [];
 
   const positionClass = {
     left: "left-0 translate-x-0",

@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
-
+import { getTvGenreName } from "../../../api/tvApi";
 export default function ContentHero({
   item,
   detail,
@@ -13,19 +13,6 @@ export default function ContentHero({
   showGenreSelector = false,
 }) {
   const [isGenreOpen, setIsGenreOpen] = useState(false);
-  const uniqueGenres = useMemo(() => {
-    const genreMap = new Map();
-
-    genres.forEach((genre) => {
-      const genreKey = genre.key ?? `genre-${genre.id}`;
-
-      if (!genreMap.has(genreKey)) {
-        genreMap.set(genreKey, genre);
-      }
-    });
-
-    return [...genreMap.values()];
-  }, [genres]);
 
   const detailPath =
     mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
@@ -34,9 +21,10 @@ export default function ContentHero({
 
   const contentGenres = detail.genres
     ?.slice(0, 2)
-    .map((genre) => genre.name)
+    .map((genre) =>
+      mediaType === "tv" ? getTvGenreName(genre.id, genre.name) : genre.name,
+    )
     .join(" · ");
-
   const releaseYear = (detail.release_date || detail.first_air_date)?.slice(
     0,
     4,
@@ -130,7 +118,7 @@ export default function ContentHero({
               {isGenreOpen && (
                 <div className="w-[360px] absolute top-[55px] left-0 p-4 bg-black/80 border border-white/20 backdrop-blur-xl rounded-2xl shadow-2xl">
                   <div className="grid grid-cols-3 gap-2">
-                    {uniqueGenres.map((genre) => {
+                    {genres.map((genre, index) => {
                       const genreKey = genre.key ?? `genre-${genre.id}`;
 
                       const selectedKey =
@@ -138,7 +126,7 @@ export default function ContentHero({
 
                       return (
                         <button
-                          key={genreKey}
+                          key={`${genreKey}-${index}`}
                           type="button"
                           onClick={() => handleGenreSelect(genre)}
                           className={`px-3 py-2 rounded-lg text-[14px] cursor-pointer transition ${

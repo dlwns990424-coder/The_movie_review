@@ -104,7 +104,6 @@ export default function Home() {
 
       <Upcoming mediaType="movie" title="개봉 예정 영화" />
       <Upcoming mediaType="tv" title="공개 예정 시리즈" />
-      <PopularPeople />
     </div>
   );
 }

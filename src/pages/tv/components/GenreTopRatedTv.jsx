@@ -264,7 +264,7 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
 
             return (
               <SwiperSlide
-                key={selectedGenre.key}
+                key={cardId}
                 onMouseEnter={() => {
                   clearTimeout(hoverTimer.current);
                   clearTimeout(closeTimer.current);
