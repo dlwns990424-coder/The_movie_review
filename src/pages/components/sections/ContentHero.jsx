@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 
@@ -13,6 +13,19 @@ export default function ContentHero({
   showGenreSelector = false,
 }) {
   const [isGenreOpen, setIsGenreOpen] = useState(false);
+  const uniqueGenres = useMemo(() => {
+    const genreMap = new Map();
+
+    genres.forEach((genre) => {
+      const genreKey = genre.key ?? `genre-${genre.id}`;
+
+      if (!genreMap.has(genreKey)) {
+        genreMap.set(genreKey, genre);
+      }
+    });
+
+    return [...genreMap.values()];
+  }, [genres]);
 
   const detailPath =
     mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
@@ -117,20 +130,27 @@ export default function ContentHero({
               {isGenreOpen && (
                 <div className="w-[360px] absolute top-[55px] left-0 p-4 bg-black/80 border border-white/20 backdrop-blur-xl rounded-2xl shadow-2xl">
                   <div className="grid grid-cols-3 gap-2">
-                    {genres.map((genre) => (
-                      <button
-                        key={genre.id}
-                        type="button"
-                        onClick={() => handleGenreSelect(genre)}
-                        className={`px-3 py-2 rounded-lg text-[14px] cursor-pointer transition ${
-                          selectedGenre?.id === genre.id
-                            ? "bg-white text-black"
-                            : "bg-white/10 text-white hover:bg-white/20"
-                        }`}
-                      >
-                        {genre.name}
-                      </button>
-                    ))}
+                    {uniqueGenres.map((genre) => {
+                      const genreKey = genre.key ?? `genre-${genre.id}`;
+
+                      const selectedKey =
+                        selectedGenre?.key ?? `genre-${selectedGenre?.id}`;
+
+                      return (
+                        <button
+                          key={genreKey}
+                          type="button"
+                          onClick={() => handleGenreSelect(genre)}
+                          className={`px-3 py-2 rounded-lg text-[14px] cursor-pointer transition ${
+                            selectedKey === genreKey
+                              ? "bg-white text-black"
+                              : "bg-white/10 text-white hover:bg-white/20"
+                          }`}
+                        >
+                          {genre.name}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -142,12 +162,12 @@ export default function ContentHero({
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/70 via-black/10 to-transparent" />
 
         <div className="w-[50%] h-auto absolute bottom-0 left-0 pb-[50px] px-[50px] flex flex-col gap-5">
-          <div className="w-full h-auto ">
+          <div className="w-full h-auto text-white text-3xl lg:text-5xl font-bold">
             {heroLogo ? (
               <img
                 src={`${ORIGINAL_URL}${heroLogo.file_path}`}
                 alt={item.title || item.name}
-                className="w-[100%]  max-h-[300px] object-contain object-left"
+                className="w-[100%]  max-h-[260px] object-contain object-left"
               />
             ) : (
               <h2>{item.title || item.name}</h2>
@@ -198,7 +218,7 @@ export default function ContentHero({
 
           <Link
             to={detailPath}
-            className="block w-[120px] px-5 py-3 border-none bg-black/40 border backdrop-blur-md text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-white/20 transition"
+            className="block w-[120px] px-5 py-3 border-none bg-white/30 border backdrop-blur-md text-white rounded-full flex items-center justify-center cursor-pointer hover:text-black hover:bg-white transition"
           >
             상세 정보
           </Link>

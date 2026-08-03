@@ -3,21 +3,20 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import HoverPreviewCard from "../card/HoverPreviewCard";
+import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 
-import { getPopularMovies } from "../../../api/movieApi";
-import { getPopularTv } from "../../../api/tvApi";
+import { getLatestReleasedMovies } from "../../../api/movieApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
 
 import "swiper/css";
 
-export default function PopularContents({ mediaType, title }) {
+export default function LatestReleasedMovies({ title = "최신 개봉 영화" }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  // 영화 또는 시리즈 목록
+  // 최신 개봉 영화 목록
   const [contents, setContents] = useState([]);
 
   // 데이터 로딩 상태
@@ -27,10 +26,10 @@ export default function PopularContents({ mediaType, title }) {
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
-  // z-index를 유지할 카드
+  // Hover 카드의 z-index를 유지할 ID
   const [hoveredId, setHoveredId] = useState(null);
 
-  // 실제로 보이는 Hover 카드
+  // 실제로 보이는 Hover 카드 ID
   const [visibleId, setVisibleId] = useState(null);
 
   // 현재 화면에 보이는 슬라이드 범위
@@ -77,19 +76,20 @@ export default function PopularContents({ mediaType, title }) {
   };
 
   useEffect(() => {
-    const getPopularData = async () => {
+    const getLatestReleasedData = async () => {
       try {
         setLoading(true);
 
-        // mediaType이 movie면 인기 영화,
-        // tv면 인기 시리즈 API 실행
-        const response =
-          mediaType === "movie"
-            ? await getPopularMovies()
-            : await getPopularTv();
+        // 최신 개봉 영화 요청
+        const response = await getLatestReleasedMovies();
 
-        // 장르 번호를 장르 이름으로 변환
-        const list = await addGenreNames(response.results, mediaType);
+        // 포스터와 개봉일이 있는 영화만 사용
+        const filteredContents = response.results.filter(
+          (item) => item.poster_path && item.release_date,
+        );
+
+        // 장르 ID를 장르 이름으로 변환
+        const list = await addGenreNames(filteredContents, "movie");
 
         setContents(list);
       } catch (error) {
@@ -100,22 +100,22 @@ export default function PopularContents({ mediaType, title }) {
       }
     };
 
-    getPopularData();
+    getLatestReleasedData();
 
     return () => {
       clearTimeout(hoverTimer.current);
       clearTimeout(closeTimer.current);
     };
-  }, [mediaType]);
+  }, []);
 
-  // 찜 추가 및 삭제
+  // 찜 추가 및 해제
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: mediaType,
+      media_type: "movie",
     };
 
     setWishlist((prev) => {
@@ -157,7 +157,7 @@ export default function PopularContents({ mediaType, title }) {
         {!isBeginning && (
           <button
             type="button"
-            aria-label="이전 콘텐츠 보기"
+            aria-label="이전 영화 보기"
             onClick={() => swiperRef.current?.slidePrev()}
             className="
               absolute
@@ -170,10 +170,12 @@ export default function PopularContents({ mediaType, title }) {
               cursor-pointer
               items-center
               justify-center
+              rounded-r-2xl
+              text-white
+              transition-all
               duration-200
               hover:bg-black/40
-              text-white
-              rounded-r-2xl
+              lg:flex
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -181,7 +183,6 @@ export default function PopularContents({ mediaType, title }) {
         )}
 
         <Swiper
-          key={mediaType}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -192,6 +193,7 @@ export default function PopularContents({ mediaType, title }) {
             updateSwiperState(swiper);
           }}
           onBreakpoint={(swiper) => {
+            resetHover();
             updateSwiperState(swiper);
           }}
           breakpoints={{
@@ -228,7 +230,11 @@ export default function PopularContents({ mediaType, title }) {
           }}
         >
           {contents.map((item, index) => {
-            if (!item.backdrop_path) return null;
+            const mediaType = "movie";
+            const cardId = `movie-${item.id}`;
+            const contentTitle = item.title;
+            const year = item.release_date?.slice(0, 4);
+            const detailPath = `/movie/${item.id}`;
 
             const previewPosition =
               index === visibleRange.start
@@ -236,18 +242,6 @@ export default function PopularContents({ mediaType, title }) {
                 : index === visibleRange.end
                   ? "right"
                   : "center";
-
-            const cardId = `${mediaType}-${item.id}`;
-
-            const contentTitle = mediaType === "movie" ? item.title : item.name;
-
-            const date =
-              mediaType === "movie" ? item.release_date : item.first_air_date;
-
-            const year = date?.slice(0, 4);
-
-            const detailPath =
-              mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
@@ -264,6 +258,7 @@ export default function PopularContents({ mediaType, title }) {
                   clearTimeout(hoverTimer.current);
                   clearTimeout(closeTimer.current);
 
+                  // 0.5초 후 Hover 카드 표시
                   hoverTimer.current = setTimeout(() => {
                     setHoveredId(cardId);
                     setVisibleId(cardId);
@@ -272,10 +267,10 @@ export default function PopularContents({ mediaType, title }) {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // Hover 카드 먼저 숨김
+                  // 먼저 Hover 카드 숨김
                   setVisibleId(null);
 
-                  // 애니메이션 종료 후 z-index 제거
+                  // 애니메이션이 끝난 뒤 z-index 초기화
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -293,12 +288,12 @@ export default function PopularContents({ mediaType, title }) {
                       src={`${ORIGINAL_URL}${item.poster_path}`}
                       alt={contentTitle}
                       className="
-                      h-full
-                      w-full
-                      object-cover
-                      transition-transform
-                      duration-300
-                    "
+                        h-full
+                        w-full
+                        object-cover
+                        transition-transform
+                        duration-300
+                      "
                     />
                   </div>
 
@@ -308,9 +303,11 @@ export default function PopularContents({ mediaType, title }) {
                     </h3>
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
-                      <span>★ {item.vote_average?.toFixed(1)}</span>
+                      <span>개봉일</span>
 
-                      {year && <span>{year}</span>}
+                      <span className="text-[#33ddff]">
+                        {item.release_date?.replaceAll("-", ".")}
+                      </span>
                     </div>
                   </div>
                 </Link>
@@ -333,7 +330,7 @@ export default function PopularContents({ mediaType, title }) {
         {!isEnd && (
           <button
             type="button"
-            aria-label="다음 콘텐츠 보기"
+            aria-label="다음 영화 보기"
             onClick={() => swiperRef.current?.slideNext()}
             className="
               absolute
@@ -346,11 +343,11 @@ export default function PopularContents({ mediaType, title }) {
               cursor-pointer
               items-center
               justify-center
+              rounded-l-2xl
+              text-white
               transition-all
               duration-200
               hover:bg-black/40
-              text-white
-              rounded-l-2xl
               md:flex
             "
           >

@@ -2,40 +2,56 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
+
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 
-import "swiper/css";
-import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
-import { getTopRatedMovies } from "../../../api/movieApi";
+import { getNowPlayingMovies } from "../../../api/movieApi";
+import { getOnTheAirTv } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
-export default function TopRatedMovies() {
+
+import "swiper/css";
+
+export default function NowPlaying({ mediaType, title }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  const [movieData, setMovieData] = useState([]);
+  // 현재 상영 또는 방영 중인 콘텐츠
+  const [contents, setContents] = useState([]);
+
+  // 로딩 상태
   const [loading, setLoading] = useState(true);
 
+  // Swiper 처음과 끝 상태
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
-  // z-index를 유지할 카드
+  // Hover 카드 z-index 유지
   const [hoveredId, setHoveredId] = useState(null);
 
-  // 실제로 보이는 hover 카드
+  // 실제 Hover 카드 표시
   const [visibleId, setVisibleId] = useState(null);
 
-  const [wishlist, setWishlist] = useState(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
-
-    return savedWishlist ? JSON.parse(savedWishlist) : [];
-  });
+  // 현재 화면에서 보이는 슬라이드 범위
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
   });
 
+  // 찜 목록
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const savedWishlist = localStorage.getItem("wishlist");
+
+      return savedWishlist ? JSON.parse(savedWishlist) : [];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  });
+
+  // Swiper 상태 업데이트
   const updateSwiperState = (swiper) => {
     setIsBeginning(swiper.isBeginning);
     setIsEnd(swiper.isEnd);
@@ -50,33 +66,8 @@ export default function TopRatedMovies() {
       end: swiper.activeIndex + slidesPerView - 1,
     });
   };
-  useEffect(() => {
-    const getTopRatedData = async () => {
-      try {
-        setLoading(true);
 
-        const movieResponse = await getTopRatedMovies();
-
-        const movieList = await addGenreNames(movieResponse.results, "movie");
-
-        setMovieData(movieList);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getTopRatedData();
-
-    return () => {
-      clearTimeout(hoverTimer.current);
-      clearTimeout(closeTimer.current);
-    };
-  }, []);
-
-  const currentData = movieData;
-
+  // Hover 상태 초기화
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
     clearTimeout(closeTimer.current);
@@ -85,13 +76,46 @@ export default function TopRatedMovies() {
     setHoveredId(null);
   };
 
+  useEffect(() => {
+    const getNowPlayingData = async () => {
+      try {
+        setLoading(true);
+
+        // 영화 페이지에서는 현재 상영 영화,
+        // TV 페이지에서는 현재 방영 시리즈 요청
+        const response =
+          mediaType === "movie"
+            ? await getNowPlayingMovies()
+            : await getOnTheAirTv();
+
+        // 장르 ID를 장르 이름으로 변환
+        const list = await addGenreNames(response.results, mediaType);
+
+        setContents(list);
+      } catch (error) {
+        console.log(error);
+        setContents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getNowPlayingData();
+
+    return () => {
+      clearTimeout(hoverTimer.current);
+      clearTimeout(closeTimer.current);
+    };
+  }, [mediaType]);
+
+  // 찜 추가 및 해제
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: "movie",
+      media_type: mediaType,
     };
 
     setWishlist((prev) => {
@@ -117,15 +141,15 @@ export default function TopRatedMovies() {
     });
   };
 
-  if (loading) return <ContentsSkeleton />;
+  if (loading) return null;
+
+  if (contents.length === 0) return null;
 
   return (
     <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
-      {/* 제목 및 탭 */}
-      <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
-        <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          평점 높은 콘텐츠
-        </h2>
+      {/* 섹션 제목 */}
+      <div className="mb-8 px-5 md:px-10 lg:px-15">
+        <h2 className="text-xl font-bold text-white md:text-2xl">{title}</h2>
       </div>
 
       {/* Swiper 영역 */}
@@ -133,6 +157,7 @@ export default function TopRatedMovies() {
         {!isBeginning && (
           <button
             type="button"
+            aria-label="이전 콘텐츠 보기"
             onClick={() => swiperRef.current?.slidePrev()}
             className="
               absolute
@@ -145,10 +170,9 @@ export default function TopRatedMovies() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               lg:flex
-            bg-black/50
-
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -156,6 +180,7 @@ export default function TopRatedMovies() {
         )}
 
         <Swiper
+          key={mediaType}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -166,12 +191,13 @@ export default function TopRatedMovies() {
             updateSwiperState(swiper);
           }}
           onBreakpoint={(swiper) => {
+            resetHover();
             updateSwiperState(swiper);
           }}
           breakpoints={{
             0: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
+              slidesPerView: 3,
+              slidesPerGroup: 3,
               spaceBetween: 10,
             },
             480: {
@@ -180,29 +206,30 @@ export default function TopRatedMovies() {
               spaceBetween: 10,
             },
             768: {
-              slidesPerView: 3,
-              slidesPerGroup: 3,
+              slidesPerView: 5,
+              slidesPerGroup: 5,
               spaceBetween: 12,
             },
             940: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 6,
+              slidesPerGroup: 6,
               spaceBetween: 16,
             },
             1280: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 7,
+              slidesPerGroup: 7,
               spaceBetween: 18,
             },
             1600: {
-              slidesPerView: 5,
-              slidesPerGroup: 5,
+              slidesPerView: 8,
+              slidesPerGroup: 8,
               spaceBetween: 18,
             },
           }}
         >
-          {currentData.map((item, index) => {
+          {contents.map((item, index) => {
             if (!item.backdrop_path) return null;
+
             const previewPosition =
               index === visibleRange.start
                 ? "left"
@@ -210,16 +237,17 @@ export default function TopRatedMovies() {
                   ? "right"
                   : "center";
 
-            const mediaType = "movie";
             const cardId = `${mediaType}-${item.id}`;
 
-            const title = item.title;
+            const contentTitle = mediaType === "movie" ? item.title : item.name;
 
-            const date = item.release_date;
+            const date =
+              mediaType === "movie" ? item.release_date : item.first_air_date;
 
             const year = date?.slice(0, 4);
 
-            const detailPath = `/movie/${item.id}`;
+            const detailPath =
+              mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
@@ -244,10 +272,10 @@ export default function TopRatedMovies() {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 hover 카드 숨김
+                  // 먼저 Hover 카드 숨김
                   setVisibleId(null);
 
-                  // 사라지는 애니메이션이 끝난 뒤 z-index 제거
+                  // 사라지는 애니메이션 이후 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -262,21 +290,21 @@ export default function TopRatedMovies() {
                 <Link to={detailPath} className="block">
                   <div className="aspect-video overflow-hidden rounded-lg bg-white/10">
                     <img
-                      src={`${ORIGINAL_URL}${item.backdrop_path}`}
-                      alt={title}
-                      className={`
+                      src={`${ORIGINAL_URL}${item.poster_path}`}
+                      alt={contentTitle}
+                      className="
                         h-full
                         w-full
                         object-cover
                         transition-transform
                         duration-300
-                      `}
+                      "
                     />
                   </div>
 
                   <div className="mt-3">
                     <h3 className="truncate text-base font-semibold text-white">
-                      {title}
+                      {contentTitle}
                     </h3>
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
@@ -305,6 +333,7 @@ export default function TopRatedMovies() {
         {!isEnd && (
           <button
             type="button"
+            aria-label="다음 콘텐츠 보기"
             onClick={() => swiperRef.current?.slideNext()}
             className="
               absolute
@@ -317,9 +346,9 @@ export default function TopRatedMovies() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               md:flex
-              bg-black/50
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

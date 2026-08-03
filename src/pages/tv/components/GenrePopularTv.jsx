@@ -2,20 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 
-import "swiper/css";
+import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
-import { getPopularMovies } from "../../../api/movieApi";
-import { getPopularTv } from "../../../api/tvApi";
+
+import { getPopularTvByGenre } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
-export default function PopularMovies() {
+
+import "swiper/css";
+
+export default function GenrePopularTv({ selectedGenre, heroTitle }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  const [movieData, setMovieData] = useState([]);
+  const [tvData, setTvData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [isBeginning, setIsBeginning] = useState(true);
@@ -24,14 +26,20 @@ export default function PopularMovies() {
   // z-index를 유지할 카드
   const [hoveredId, setHoveredId] = useState(null);
 
-  // 실제로 보이는 hover 카드
+  // 실제로 보이는 Hover 카드
   const [visibleId, setVisibleId] = useState(null);
 
   const [wishlist, setWishlist] = useState(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
+    try {
+      const savedWishlist = localStorage.getItem("wishlist");
 
-    return savedWishlist ? JSON.parse(savedWishlist) : [];
+      return savedWishlist ? JSON.parse(savedWishlist) : [];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   });
+
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
@@ -51,32 +59,6 @@ export default function PopularMovies() {
       end: swiper.activeIndex + slidesPerView - 1,
     });
   };
-  useEffect(() => {
-    const getPopularData = async () => {
-      try {
-        setLoading(true);
-
-        const movieResponse = await getPopularMovies();
-
-        const movieList = await addGenreNames(movieResponse.results, "movie");
-
-        setMovieData(movieList);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getPopularData();
-
-    return () => {
-      clearTimeout(hoverTimer.current);
-      clearTimeout(closeTimer.current);
-    };
-  }, []);
-
-  const currentData = movieData;
 
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
@@ -86,13 +68,47 @@ export default function PopularMovies() {
     setHoveredId(null);
   };
 
+  useEffect(() => {
+    if (!selectedGenre) return;
+
+    const getGenrePopularTv = async () => {
+      try {
+        setLoading(true);
+
+        const tvResponse = await getPopularTvByGenre(selectedGenre);
+
+        const tvList = await addGenreNames(tvResponse.results, "tv");
+
+        setTvData(tvList);
+
+        setTimeout(() => {
+          swiperRef.current?.slideTo(0);
+          setIsBeginning(true);
+          setIsEnd(false);
+        }, 0);
+      } catch (error) {
+        console.log(error);
+        setTvData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getGenrePopularTv();
+
+    return () => {
+      clearTimeout(hoverTimer.current);
+      clearTimeout(closeTimer.current);
+    };
+  }, [selectedGenre]);
+
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: "movie",
+      media_type: "tv",
     };
 
     setWishlist((prev) => {
@@ -118,14 +134,21 @@ export default function PopularMovies() {
     });
   };
 
-  if (loading) return <ContentsSkeleton />;
+  if (!selectedGenre || loading) {
+    return <ContentsSkeleton />;
+  }
+
+  if (tvData.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
-      {/* 제목 및 탭 */}
+      {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
-        <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          현재 인기있는 콘텐츠
+        <h2 className="text-xl font-bold text-white md:text-2xl">
+          <span className="text-[#33ddff]">{heroTitle}</span> (와)과 같은 장르의
+          인기 시리즈
         </h2>
       </div>
 
@@ -134,6 +157,7 @@ export default function PopularMovies() {
         {!isBeginning && (
           <button
             type="button"
+            aria-label="이전 시리즈 보기"
             onClick={() => swiperRef.current?.slidePrev()}
             className="
               absolute
@@ -146,10 +170,9 @@ export default function PopularMovies() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               lg:flex
-            bg-black/50
-
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -157,6 +180,7 @@ export default function PopularMovies() {
         )}
 
         <Swiper
+          key={selectedGenre.key}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -167,12 +191,13 @@ export default function PopularMovies() {
             updateSwiperState(swiper);
           }}
           onBreakpoint={(swiper) => {
+            resetHover();
             updateSwiperState(swiper);
           }}
           breakpoints={{
             0: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
+              slidesPerView: 3,
+              slidesPerGroup: 3,
               spaceBetween: 10,
             },
             480: {
@@ -181,29 +206,30 @@ export default function PopularMovies() {
               spaceBetween: 10,
             },
             768: {
-              slidesPerView: 3,
-              slidesPerGroup: 3,
+              slidesPerView: 5,
+              slidesPerGroup: 5,
               spaceBetween: 12,
             },
             940: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 6,
+              slidesPerGroup: 6,
               spaceBetween: 16,
             },
             1280: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 7,
+              slidesPerGroup: 7,
               spaceBetween: 18,
             },
             1600: {
-              slidesPerView: 5,
-              slidesPerGroup: 5,
+              slidesPerView: 8,
+              slidesPerGroup: 8,
               spaceBetween: 18,
             },
           }}
         >
-          {currentData.map((item, index) => {
-            if (!item.backdrop_path) return null;
+          {tvData.map((item, index) => {
+            if (!item.poster_path) return null;
+
             const previewPosition =
               index === visibleRange.start
                 ? "left"
@@ -211,16 +237,11 @@ export default function PopularMovies() {
                   ? "right"
                   : "center";
 
-            const mediaType = "movie";
-            const cardId = `${mediaType}-${item.id}`;
-
-            const title = item.title;
-
-            const date = item.release_date;
-
-            const year = date?.slice(0, 4);
-
-            const detailPath = `/movie/${item.id}`;
+            const mediaType = "tv";
+            const cardId = `tv-${item.id}`;
+            const title = item.name;
+            const year = item.first_air_date?.slice(0, 4);
+            const detailPath = `/tv/${item.id}`;
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
@@ -245,10 +266,8 @@ export default function PopularMovies() {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 hover 카드 숨김
                   setVisibleId(null);
 
-                  // 사라지는 애니메이션이 끝난 뒤 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -261,17 +280,17 @@ export default function PopularMovies() {
               >
                 {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
-                  <div className="aspect-video overflow-hidden rounded-lg bg-white/10">
+                  <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
-                      src={`${ORIGINAL_URL}${item.backdrop_path}`}
+                      src={`${ORIGINAL_URL}${item.poster_path}`}
                       alt={title}
-                      className={`
+                      className="
                         h-full
                         w-full
                         object-cover
                         transition-transform
                         duration-300
-                      `}
+                      "
                     />
                   </div>
 
@@ -306,6 +325,7 @@ export default function PopularMovies() {
         {!isEnd && (
           <button
             type="button"
+            aria-label="다음 시리즈 보기"
             onClick={() => swiperRef.current?.slideNext()}
             className="
               absolute
@@ -318,9 +338,9 @@ export default function PopularMovies() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               md:flex
-              bg-black/50
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

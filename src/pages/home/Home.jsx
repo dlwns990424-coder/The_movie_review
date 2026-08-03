@@ -9,9 +9,8 @@ import ContentHero from "../components/sections/ContentHero";
 import PopularContents from "../components/sections/PopularContents";
 
 import GlobalTop10 from "./components/GlobalTop10";
-import Upcoming from "./components/Upcoming";
 import PopularPeople from "../components/sections/PopularPeople";
-
+import Upcoming from "../components/sections/Upcoming";
 export default function Home() {
   // Hero에 사용할 기본 콘텐츠 정보
   const [heroItem, setHeroItem] = useState(null);
@@ -103,8 +102,9 @@ export default function Home() {
 
       <PopularContents mediaType="tv" title="인기있는 시리즈" />
 
+      <Upcoming mediaType="movie" title="개봉 예정 영화" />
+      <Upcoming mediaType="tv" title="공개 예정 시리즈" />
       <PopularPeople />
-      <Upcoming />
     </div>
   );
 }

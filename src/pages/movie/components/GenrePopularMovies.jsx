@@ -133,8 +133,9 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
     <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
       {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
-        <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          <span className="text-[#33ddff]">{heroTitle}</span> 와 비슷한 영화
+        <h2 className="text-xl font-bold text-white md:text-2xl">
+          <span className="text-[#33ddff]">{heroTitle}</span> (와)과 같은 장르의
+          인기 영화
         </h2>
       </div>
 
@@ -180,8 +181,8 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
           }}
           breakpoints={{
             0: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
+              slidesPerView: 3,
+              slidesPerGroup: 3,
               spaceBetween: 10,
             },
             480: {
@@ -190,23 +191,23 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
               spaceBetween: 10,
             },
             768: {
-              slidesPerView: 3,
-              slidesPerGroup: 3,
+              slidesPerView: 5,
+              slidesPerGroup: 5,
               spaceBetween: 12,
             },
             940: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 6,
+              slidesPerGroup: 6,
               spaceBetween: 16,
             },
             1280: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 7,
+              slidesPerGroup: 7,
               spaceBetween: 18,
             },
             1600: {
-              slidesPerView: 5,
-              slidesPerGroup: 5,
+              slidesPerView: 8,
+              slidesPerGroup: 8,
               spaceBetween: 18,
             },
           }}
@@ -264,17 +265,17 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
               >
                 {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
-                  <div className="aspect-video overflow-hidden rounded-lg bg-white/10">
+                  <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
-                      src={`${ORIGINAL_URL}${item.backdrop_path}`}
-                      alt={title}
+                      src={`${ORIGINAL_URL}${item.poster_path}`}
+                      alt={item.title}
                       className="
-                        h-full
-                        w-full
-                        object-cover
-                        transition-transform
-                        duration-300
-                      "
+                      h-full
+                      w-full
+                      object-cover
+                      transition-transform
+                      duration-300
+                    "
                     />
                   </div>
 

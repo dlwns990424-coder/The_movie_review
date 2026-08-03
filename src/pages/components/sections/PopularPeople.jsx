@@ -111,9 +111,7 @@ export default function PopularPeople() {
   return (
     <section className="relative overflow-hidden bg-black/96 pt-[70px]">
       <div className="mb-8 px-5 md:px-10 lg:px-15">
-        <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          인기 인물
-        </h2>
+        <h2 className="text-xl font-bold text-white md:text-2xl">인기 인물</h2>
       </div>
 
       <div className="relative px-5 md:px-10 lg:px-15">
@@ -137,8 +135,8 @@ export default function PopularPeople() {
               hover:bg-black/40
               text-white
               rounded-r-2xl
-              rounded-br-lg-2x1
-              lg:flex
+              rounded-br-2xl
+              md:flex
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -154,34 +152,34 @@ export default function PopularPeople() {
           onBreakpoint={updateSwiperState}
           breakpoints={{
             0: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
-              spaceBetween: 12,
+              slidesPerView: 3,
+              slidesPerGroup: 3,
+              spaceBetween: 10,
             },
             480: {
               slidesPerView: 3,
               slidesPerGroup: 3,
-              spaceBetween: 12,
+              spaceBetween: 10,
             },
             768: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
-              spaceBetween: 16,
-            },
-            940: {
               slidesPerView: 5,
               slidesPerGroup: 5,
-              spaceBetween: 18,
+              spaceBetween: 12,
             },
-            1280: {
+            940: {
               slidesPerView: 6,
               slidesPerGroup: 6,
+              spaceBetween: 16,
+            },
+            1280: {
+              slidesPerView: 7,
+              slidesPerGroup: 7,
               spaceBetween: 18,
             },
             1600: {
-              slidesPerView: 7,
-              slidesPerGroup: 7,
-              spaceBetween: 20,
+              slidesPerView: 8,
+              slidesPerGroup: 8,
+              spaceBetween: 18,
             },
           }}
         >
@@ -238,7 +236,7 @@ export default function PopularPeople() {
               text-white
               rounded-l-2xl
               rounded-bl-lg-2x1
-              lg:flex
+              md:flex
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

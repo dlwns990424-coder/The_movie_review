@@ -2,43 +2,56 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
+
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
+import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
+
+import { getTopRatedTvByGenre } from "../../../api/tvApi";
+import { ORIGINAL_URL } from "../../../constants/imageUrl";
+import { addGenreNames } from "../../../lib/genreUtils";
 
 import "swiper/css";
 
-import { getTopRatedMovies } from "../../../api/movieApi";
-import { getTopRatedTv } from "../../../api/tvApi";
-import { ORIGINAL_URL } from "../../../constants/imageUrl";
-import { addGenreNames } from "../../../lib/genreUtils";
-export default function TopRated() {
+export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("movie");
-  const [movieData, setMovieData] = useState([]);
+  // 선택한 장르의 평점 높은 시리즈
   const [tvData, setTvData] = useState([]);
+
+  // 데이터 로딩 상태
   const [loading, setLoading] = useState(true);
 
+  // Swiper 처음과 끝 상태
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
-  // z-index를 유지할 카드
+  // Hover 카드의 z-index를 유지할 ID
   const [hoveredId, setHoveredId] = useState(null);
 
-  // 실제로 보이는 hover 카드
+  // 실제로 화면에 보이는 Hover 카드 ID
   const [visibleId, setVisibleId] = useState(null);
 
+  // 찜 목록
   const [wishlist, setWishlist] = useState(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
+    try {
+      const savedWishlist = localStorage.getItem("wishlist");
 
-    return savedWishlist ? JSON.parse(savedWishlist) : [];
+      return savedWishlist ? JSON.parse(savedWishlist) : [];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   });
+
+  // 현재 화면에 보이는 슬라이드 범위
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
   });
 
+  // Swiper 상태 업데이트
   const updateSwiperState = (swiper) => {
     setIsBeginning(swiper.isBeginning);
     setIsEnd(swiper.isEnd);
@@ -53,38 +66,8 @@ export default function TopRated() {
       end: swiper.activeIndex + slidesPerView - 1,
     });
   };
-  useEffect(() => {
-    const getTopRatedData = async () => {
-      try {
-        setLoading(true);
 
-        const [movieResponse, tvResponse] = await Promise.all([
-          getTopRatedMovies(),
-          getTopRatedTv(),
-        ]);
-
-        const movieList = await addGenreNames(movieResponse.results, "movie");
-        const tvList = await addGenreNames(tvResponse.results, "tv");
-
-        setMovieData(movieList);
-        setTvData(tvList);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getTopRatedData();
-
-    return () => {
-      clearTimeout(hoverTimer.current);
-      clearTimeout(closeTimer.current);
-    };
-  }, []);
-
-  const currentData = activeTab === "movie" ? movieData : tvData;
-
+  // Hover 상태 초기화
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
     clearTimeout(closeTimer.current);
@@ -93,25 +76,50 @@ export default function TopRated() {
     setHoveredId(null);
   };
 
-  const handleTab = (tab) => {
-    resetHover();
+  // 선택한 장르가 변경될 때마다 평점 높은 시리즈 요청
+  useEffect(() => {
+    if (!selectedGenre) return;
 
-    setActiveTab(tab);
+    const getGenreTopRatedTv = async () => {
+      try {
+        setLoading(true);
 
-    setTimeout(() => {
-      swiperRef.current?.slideTo(0);
-      setIsBeginning(true);
-      setIsEnd(false);
-    }, 0);
-  };
+        const tvResponse = await getTopRatedTvByGenre(selectedGenre);
 
+        const tvList = await addGenreNames(tvResponse.results, "tv");
+
+        setTvData(tvList);
+
+        // 장르가 변경되면 Swiper 첫 번째로 이동
+        setTimeout(() => {
+          swiperRef.current?.slideTo(0);
+          setIsBeginning(true);
+          setIsEnd(false);
+        }, 0);
+      } catch (error) {
+        console.log(error);
+        setTvData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getGenreTopRatedTv();
+
+    return () => {
+      clearTimeout(hoverTimer.current);
+      clearTimeout(closeTimer.current);
+    };
+  }, [selectedGenre]);
+
+  // 찜 추가 및 해제
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: activeTab,
+      media_type: "tv",
     };
 
     setWishlist((prev) => {
@@ -137,37 +145,22 @@ export default function TopRated() {
     });
   };
 
-  if (loading) return null;
+  if (!selectedGenre || loading) {
+    return <ContentsSkeleton />;
+  }
+
+  if (tvData.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
-      {/* 제목 및 탭 */}
+      {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
-        <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          평점 높은 콘텐츠
+        <h2 className="text-xl font-bold text-white md:text-2xl">
+          <span className="text-[#33ddff]">{heroTitle}</span> (와)과 같은 장르의
+          평점 높은 시리즈
         </h2>
-
-        <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">
-          <button
-            type="button"
-            onClick={() => handleTab("movie")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "movie" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            영화
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTab("tv")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "tv" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            시리즈
-          </button>
-        </div>
       </div>
 
       {/* Swiper 영역 */}
@@ -175,6 +168,7 @@ export default function TopRated() {
         {!isBeginning && (
           <button
             type="button"
+            aria-label="이전 시리즈 보기"
             onClick={() => swiperRef.current?.slidePrev()}
             className="
               absolute
@@ -187,10 +181,9 @@ export default function TopRated() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               lg:flex
-            bg-black/50
-
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -198,7 +191,7 @@ export default function TopRated() {
         )}
 
         <Swiper
-          key={activeTab}
+          key={selectedGenre.id}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -209,12 +202,13 @@ export default function TopRated() {
             updateSwiperState(swiper);
           }}
           onBreakpoint={(swiper) => {
+            resetHover();
             updateSwiperState(swiper);
           }}
           breakpoints={{
             0: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
+              slidesPerView: 3,
+              slidesPerGroup: 3,
               spaceBetween: 10,
             },
             480: {
@@ -223,29 +217,30 @@ export default function TopRated() {
               spaceBetween: 10,
             },
             768: {
-              slidesPerView: 3,
-              slidesPerGroup: 3,
+              slidesPerView: 5,
+              slidesPerGroup: 5,
               spaceBetween: 12,
             },
             940: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 6,
+              slidesPerGroup: 6,
               spaceBetween: 16,
             },
             1280: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 7,
+              slidesPerGroup: 7,
               spaceBetween: 18,
             },
             1600: {
-              slidesPerView: 5,
-              slidesPerGroup: 5,
+              slidesPerView: 8,
+              slidesPerGroup: 8,
               spaceBetween: 18,
             },
           }}
         >
-          {currentData.map((item, index) => {
-            if (!item.backdrop_path) return null;
+          {tvData.map((item, index) => {
+            if (!item.poster_path) return null;
+
             const previewPosition =
               index === visibleRange.start
                 ? "left"
@@ -253,18 +248,11 @@ export default function TopRated() {
                   ? "right"
                   : "center";
 
-            const mediaType = activeTab;
-            const cardId = `${mediaType}-${item.id}`;
-
-            const title = mediaType === "movie" ? item.title : item.name;
-
-            const date =
-              mediaType === "movie" ? item.release_date : item.first_air_date;
-
-            const year = date?.slice(0, 4);
-
-            const detailPath =
-              mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
+            const mediaType = "tv";
+            const cardId = `tv-${item.id}`;
+            const title = item.name;
+            const year = item.first_air_date?.slice(0, 4);
+            const detailPath = `/tv/${item.id}`;
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
@@ -276,7 +264,7 @@ export default function TopRated() {
 
             return (
               <SwiperSlide
-                key={cardId}
+                key={selectedGenre.key}
                 onMouseEnter={() => {
                   clearTimeout(hoverTimer.current);
                   clearTimeout(closeTimer.current);
@@ -289,10 +277,10 @@ export default function TopRated() {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 hover 카드 숨김
+                  // 먼저 Hover 카드 숨김
                   setVisibleId(null);
 
-                  // 사라지는 애니메이션이 끝난 뒤 z-index 제거
+                  // 애니메이션이 끝난 뒤 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -305,17 +293,17 @@ export default function TopRated() {
               >
                 {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
-                  <div className="aspect-video overflow-hidden rounded-lg bg-white/10">
+                  <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
-                      src={`${ORIGINAL_URL}${item.backdrop_path}`}
+                      src={`${ORIGINAL_URL}${item.poster_path}`}
                       alt={title}
-                      className={`
+                      className="
                         h-full
                         w-full
                         object-cover
                         transition-transform
                         duration-300
-                      `}
+                      "
                     />
                   </div>
 
@@ -350,6 +338,7 @@ export default function TopRated() {
         {!isEnd && (
           <button
             type="button"
+            aria-label="다음 시리즈 보기"
             onClick={() => swiperRef.current?.slideNext()}
             className="
               absolute
@@ -362,9 +351,9 @@ export default function TopRated() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               md:flex
-              bg-black/50
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

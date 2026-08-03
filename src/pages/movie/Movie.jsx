@@ -10,9 +10,11 @@ import {
 } from "../../api/movieApi";
 
 import { getLogo } from "../../api/logoImgApi";
-import PopularMovies from "./components/PopularMovies";
-import TopRated from "../home/components/TopRated";
-import TopRatedMovies from "./components/TopRatedMovies";
+import PopularContents from "../components/sections/PopularContents";
+import Upcoming from "../components/sections/Upcoming";
+import TopRated from "../components/sections/TopRated";
+import GenreTopRatedMovies from "./components/GenreTopRatedMovies";
+import LatestReleasedMovies from "./components/LatestReleasedMovies";
 
 export default function Movie() {
   const [selectedGenre, setSelectedGenre] = useState(null);
@@ -112,8 +114,14 @@ export default function Movie() {
         selectedGenre={selectedGenre}
         heroTitle={heroItem?.title}
       />
-      <PopularMovies />
-      <TopRatedMovies />
+      <GenreTopRatedMovies
+        selectedGenre={selectedGenre}
+        heroTitle={heroItem?.title}
+      />
+      <PopularContents mediaType="movie" title="인기 영화" />
+      <TopRated mediaType="movie" title="평점 높은 영화" />
+      <LatestReleasedMovies title="최신 개봉 영화" />
+      <Upcoming mediaType="movie" title="개봉 예정 영화" />
     </div>
   );
 }

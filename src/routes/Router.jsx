@@ -12,9 +12,12 @@ import Search from "../pages/search/Search";
 import Signup from "../pages/signup/Signup";
 import Login from "../pages/login/Login";
 import Wishlist from "../pages/wishlist/Wishlist";
+import ScrollToTop from "../pages/hook/ScrollToTop";
 export default function Router() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
+
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />

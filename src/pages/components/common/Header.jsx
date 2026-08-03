@@ -38,7 +38,7 @@ export default function Header() {
                 to="/people"
                 className="text-white hover:!text-[#33ddff] transition-colors"
               >
-                인기배우
+                인기 인물
               </NavLink>
             </li>
 

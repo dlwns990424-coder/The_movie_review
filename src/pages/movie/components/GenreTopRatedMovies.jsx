@@ -3,22 +3,19 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
-
+import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
 import "swiper/css";
 
-import { getNowPlayingMovies } from "../../../api/movieApi";
-import { getOnTheAirTv } from "../../../api/tvApi";
+import { getTopRatedMoviesByGenre } from "../../../api/movieApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
 
-export default function NowPlaying() {
+export default function GenreTopRatedMovies({ selectedGenre, heroTitle }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("movie");
   const [movieData, setMovieData] = useState([]);
-  const [tvData, setTvData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [isBeginning, setIsBeginning] = useState(true);
@@ -35,6 +32,7 @@ export default function NowPlaying() {
 
     return savedWishlist ? JSON.parse(savedWishlist) : [];
   });
+
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
@@ -54,37 +52,40 @@ export default function NowPlaying() {
       end: swiper.activeIndex + slidesPerView - 1,
     });
   };
+
   useEffect(() => {
-    const getNowPlayingData = async () => {
+    if (!selectedGenre) return;
+
+    const getGenreTopRatedMovies = async () => {
       try {
         setLoading(true);
 
-        const [movieResponse, tvResponse] = await Promise.all([
-          getNowPlayingMovies(),
-          getOnTheAirTv(),
-        ]);
+        const movieResponse = await getTopRatedMoviesByGenre(selectedGenre.id);
 
         const movieList = await addGenreNames(movieResponse.results, "movie");
-        const tvList = await addGenreNames(tvResponse.results, "tv");
 
         setMovieData(movieList);
-        setTvData(tvList);
+
+        setTimeout(() => {
+          swiperRef.current?.slideTo(0);
+          setIsBeginning(true);
+          setIsEnd(false);
+        }, 0);
       } catch (error) {
         console.log(error);
+        setMovieData([]);
       } finally {
         setLoading(false);
       }
     };
 
-    getNowPlayingData();
+    getGenreTopRatedMovies();
 
     return () => {
       clearTimeout(hoverTimer.current);
       clearTimeout(closeTimer.current);
     };
-  }, []);
-
-  const currentData = activeTab === "movie" ? movieData : tvData;
+  }, [selectedGenre]);
 
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
@@ -94,25 +95,13 @@ export default function NowPlaying() {
     setHoveredId(null);
   };
 
-  const handleTab = (tab) => {
-    resetHover();
-
-    setActiveTab(tab);
-
-    setTimeout(() => {
-      swiperRef.current?.slideTo(0);
-      setIsBeginning(true);
-      setIsEnd(false);
-    }, 0);
-  };
-
   const handleWishlist = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
 
     const wishlistItem = {
       ...item,
-      media_type: activeTab,
+      media_type: "movie",
     };
 
     setWishlist((prev) => {
@@ -138,37 +127,16 @@ export default function NowPlaying() {
     });
   };
 
-  if (loading) return null;
+  if (!selectedGenre || loading) return <ContentsSkeleton />;
 
   return (
     <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
-      {/* 제목 및 탭 */}
+      {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
-        <h2 className="text-2xl font-bold text-white md:text-[24px]">
-          현재 상영 / 방영 중인 콘텐츠
+        <h2 className="text-xl font-bold text-white md:text-2xl">
+          <span className="text-[#33ddff]">{heroTitle}</span> (와)과 비슷한 평점
+          높은 영화
         </h2>
-
-        <div className="flex gap-2 bg-white/10 px-2 py-2 rounded-4xl">
-          <button
-            type="button"
-            onClick={() => handleTab("movie")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "movie" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            영화
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTab("tv")}
-            className={`cursor-pointer rounded-full px-4 py-1 text-sm transition ${
-              activeTab === "tv" ? "bg-[#33ddff] text-black" : " text-white"
-            }`}
-          >
-            시리즈
-          </button>
-        </div>
       </div>
 
       {/* Swiper 영역 */}
@@ -188,10 +156,9 @@ export default function NowPlaying() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               lg:flex
-            bg-black/50
-
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -199,7 +166,7 @@ export default function NowPlaying() {
         )}
 
         <Swiper
-          key={activeTab}
+          key={selectedGenre.id}
           className="!overflow-visible"
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
@@ -214,8 +181,8 @@ export default function NowPlaying() {
           }}
           breakpoints={{
             0: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
+              slidesPerView: 3,
+              slidesPerGroup: 3,
               spaceBetween: 10,
             },
             480: {
@@ -224,29 +191,29 @@ export default function NowPlaying() {
               spaceBetween: 10,
             },
             768: {
-              slidesPerView: 3,
-              slidesPerGroup: 3,
+              slidesPerView: 5,
+              slidesPerGroup: 5,
               spaceBetween: 12,
             },
             940: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 6,
+              slidesPerGroup: 6,
               spaceBetween: 16,
             },
             1280: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 7,
+              slidesPerGroup: 7,
               spaceBetween: 18,
             },
             1600: {
-              slidesPerView: 5,
-              slidesPerGroup: 5,
+              slidesPerView: 8,
+              slidesPerGroup: 8,
               spaceBetween: 18,
             },
           }}
         >
-          {currentData.map((item, index) => {
-            if (!item.backdrop_path) return null;
+          {movieData.map((item, index) => {
+            if (!item.poster_path) return null;
             const previewPosition =
               index === visibleRange.start
                 ? "left"
@@ -254,18 +221,11 @@ export default function NowPlaying() {
                   ? "right"
                   : "center";
 
-            const mediaType = activeTab;
-            const cardId = `${mediaType}-${item.id}`;
-
-            const title = mediaType === "movie" ? item.title : item.name;
-
-            const date =
-              mediaType === "movie" ? item.release_date : item.first_air_date;
-
-            const year = date?.slice(0, 4);
-
-            const detailPath =
-              mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
+            const mediaType = "movie";
+            const cardId = `movie-${item.id}`;
+            const title = item.title;
+            const year = item.release_date?.slice(0, 4);
+            const detailPath = `/movie/${item.id}`;
 
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
@@ -290,10 +250,8 @@ export default function NowPlaying() {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 hover 카드 숨김
                   setVisibleId(null);
 
-                  // 사라지는 애니메이션이 끝난 뒤 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -306,17 +264,17 @@ export default function NowPlaying() {
               >
                 {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
-                  <div className="aspect-video overflow-hidden rounded-lg bg-white/10">
+                  <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
-                      src={`${ORIGINAL_URL}${item.backdrop_path}`}
-                      alt={title}
-                      className={`
-                        h-full
-                        w-full
-                        object-cover
-                        transition-transform
-                        duration-300
-                      `}
+                      src={`${ORIGINAL_URL}${item.poster_path}`}
+                      alt={item.title}
+                      className="
+                      h-full
+                      w-full
+                      object-cover
+                      transition-transform
+                      duration-300
+                    "
                     />
                   </div>
 
@@ -363,9 +321,9 @@ export default function NowPlaying() {
               cursor-pointer
               items-center
               justify-center
+              bg-black/50
               text-white
               md:flex
-              bg-black/50
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />

@@ -98,3 +98,38 @@ export const getPopularMoviesByGenre = async (genreId, page = 1) => {
 
   return response.data;
 };
+// 선택한 장르의 평점 높은 영화
+export const getTopRatedMoviesByGenre = async (genreId, page = 1) => {
+  const response = await axiosInstance.get("/discover/movie", {
+    params: {
+      with_genres: genreId,
+      sort_by: "vote_average.desc",
+      "vote_count.gte": 200,
+      page,
+    },
+  });
+
+  return response.data;
+};
+// 최신 개봉 영화
+export const getLatestReleasedMovies = async (page = 1) => {
+  // 오늘 날짜를 YYYY-MM-DD 형식으로 변환
+  const today = new Date().toISOString().slice(0, 10);
+
+  const response = await axiosInstance.get("/discover/movie", {
+    params: {
+      sort_by: "primary_release_date.desc",
+
+      // 오늘까지 개봉한 영화만 조회
+      "primary_release_date.lte": today,
+
+      // 평가가 전혀 없는 콘텐츠 일부 제외
+      "vote_count.gte": 10,
+
+      region: "KR",
+      page,
+    },
+  });
+
+  return response.data;
+};
