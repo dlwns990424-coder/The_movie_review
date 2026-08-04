@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import {
   getCurrentUser,
   login as loginStorage,
@@ -8,15 +8,8 @@ import {
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-
-  useEffect(() => {
-    const savedUser = getCurrentUser();
-
-    setCurrentUser(savedUser);
-    setAuthLoading(false);
-  }, []);
+  // 처음 렌더링할 때 localStorage 로그인 정보를 즉시 불러옴
+  const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
 
   const login = ({ username, password }) => {
     const user = loginStorage({
@@ -36,7 +29,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
-    authLoading,
+    authLoading: false,
     isLoggedIn: Boolean(currentUser),
     login,
     logout,

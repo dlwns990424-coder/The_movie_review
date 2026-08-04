@@ -104,7 +104,7 @@ export default function GlobalTop10({ items }) {
   if (!items || items.length === 0) return null;
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
+    <section className="relative overflow-x-clip bg-black pt-[50px]">
       {/* 섹션 제목 */}
       <div className="mb-4 px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">

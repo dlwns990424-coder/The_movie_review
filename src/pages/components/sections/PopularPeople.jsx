@@ -109,7 +109,7 @@ export default function PopularPeople() {
   if (people.length === 0) return null;
 
   return (
-    <section className="relative overflow-hidden bg-black/96 pt-[70px]">
+    <section className="relative overflow-hidden bg-black pt-[70px]">
       <div className="mb-8 px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">인기 인물</h2>
       </div>

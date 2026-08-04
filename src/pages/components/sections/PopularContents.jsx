@@ -9,6 +9,7 @@ import { getPopularMovies } from "../../../api/movieApi";
 import { getPopularTv } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
+import { useWishlist } from "../../hook/useWishlist";
 
 import "swiper/css";
 
@@ -17,41 +18,24 @@ export default function PopularContents({ mediaType, title }) {
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
 
-  // 영화 또는 시리즈 목록
   const [contents, setContents] = useState([]);
-
-  // 데이터 로딩 상태
   const [loading, setLoading] = useState(true);
 
-  // Swiper 처음과 끝 상태
   const [isBeginning, setIsBeginning] = useState(true);
+
   const [isEnd, setIsEnd] = useState(false);
 
-  // z-index를 유지할 카드
   const [hoveredId, setHoveredId] = useState(null);
-
-  // 실제로 보이는 Hover 카드
   const [visibleId, setVisibleId] = useState(null);
 
-  // 현재 화면에 보이는 슬라이드 범위
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
   });
 
-  // 찜 목록
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const savedWishlist = localStorage.getItem("wishlist");
+  // 공통 찜 Hook
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  });
-
-  // Swiper 위치 상태 업데이트
   const updateSwiperState = (swiper) => {
     setIsBeginning(swiper.isBeginning);
     setIsEnd(swiper.isEnd);
@@ -67,7 +51,6 @@ export default function PopularContents({ mediaType, title }) {
     });
   };
 
-  // Hover 상태 초기화
   const resetHover = () => {
     clearTimeout(hoverTimer.current);
     clearTimeout(closeTimer.current);
@@ -81,14 +64,11 @@ export default function PopularContents({ mediaType, title }) {
       try {
         setLoading(true);
 
-        // mediaType이 movie면 인기 영화,
-        // tv면 인기 시리즈 API 실행
         const response =
           mediaType === "movie"
             ? await getPopularMovies()
             : await getPopularTv();
 
-        // 장르 번호를 장르 이름으로 변환
         const list = await addGenreNames(response.results, mediaType);
 
         setContents(list);
@@ -108,51 +88,20 @@ export default function PopularContents({ mediaType, title }) {
     };
   }, [mediaType]);
 
-  // 찜 추가 및 삭제
-  const handleWishlist = (e, item) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const wishlistItem = {
-      ...item,
-      media_type: mediaType,
-    };
-
-    setWishlist((prev) => {
-      const alreadySaved = prev.some(
-        (savedItem) =>
-          savedItem.id === wishlistItem.id &&
-          savedItem.media_type === wishlistItem.media_type,
-      );
-
-      const nextWishlist = alreadySaved
-        ? prev.filter(
-            (savedItem) =>
-              !(
-                savedItem.id === wishlistItem.id &&
-                savedItem.media_type === wishlistItem.media_type
-              ),
-          )
-        : [...prev, wishlistItem];
-
-      localStorage.setItem("wishlist", JSON.stringify(nextWishlist));
-
-      return nextWishlist;
-    });
+  // HoverPreviewCard에서 사용할 찜 함수
+  const handleWishlist = (event, item) => {
+    toggleWishlist(event, item, mediaType);
   };
 
   if (loading) return null;
-
   if (contents.length === 0) return null;
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[70px]">
-      {/* 섹션 제목 */}
+    <section className="relative overflow-x-clip bg-black pt-[70px]">
       <div className="mb-4 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">{title}</h2>
       </div>
 
-      {/* Swiper 영역 */}
       <div className="relative px-5 md:px-10 lg:px-15">
         {!isBeginning && (
           <button
@@ -170,10 +119,11 @@ export default function PopularContents({ mediaType, title }) {
               cursor-pointer
               items-center
               justify-center
+              rounded-r-2xl
+              text-white
               duration-200
               hover:bg-black/40
-              text-white
-              rounded-r-2xl
+              md:flex
             "
           >
             <ChevronLeft size={42} strokeWidth={1.5} />
@@ -228,7 +178,9 @@ export default function PopularContents({ mediaType, title }) {
           }}
         >
           {contents.map((item, index) => {
-            if (!item.backdrop_path) return null;
+            if (!item.backdrop_path) {
+              return null;
+            }
 
             const previewPosition =
               index === visibleRange.start
@@ -250,18 +202,17 @@ export default function PopularContents({ mediaType, title }) {
               mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
 
             const isHovered = hoveredId === cardId;
+
             const isVisible = visibleId === cardId;
 
-            const isWishlisted = wishlist.some(
-              (savedItem) =>
-                savedItem.id === item.id && savedItem.media_type === mediaType,
-            );
+            const itemIsWishlisted = isWishlisted(item.id, mediaType);
 
             return (
               <SwiperSlide
                 key={cardId}
                 onMouseEnter={() => {
                   clearTimeout(hoverTimer.current);
+
                   clearTimeout(closeTimer.current);
 
                   hoverTimer.current = setTimeout(() => {
@@ -272,10 +223,8 @@ export default function PopularContents({ mediaType, title }) {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // Hover 카드 먼저 숨김
                   setVisibleId(null);
 
-                  // 애니메이션 종료 후 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -286,19 +235,12 @@ export default function PopularContents({ mediaType, title }) {
                   ${isHovered ? "!z-[150]" : "!z-0"}
                 `}
               >
-                {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
                   <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
                       src={`${ORIGINAL_URL}${item.poster_path}`}
                       alt={contentTitle}
-                      className="
-                      h-full
-                      w-full
-                      object-cover
-                      transition-transform
-                      duration-300
-                    "
+                      className="h-full w-full object-cover transition-transform duration-300"
                     />
                   </div>
 
@@ -315,13 +257,12 @@ export default function PopularContents({ mediaType, title }) {
                   </div>
                 </Link>
 
-                {/* 상세 미리보기 카드 */}
                 <HoverPreviewCard
                   item={item}
                   mediaType={mediaType}
                   detailPath={detailPath}
                   isVisible={isVisible}
-                  isWishlisted={isWishlisted}
+                  isWishlisted={itemIsWishlisted}
                   handleWishlist={handleWishlist}
                   position={previewPosition}
                 />
@@ -346,11 +287,11 @@ export default function PopularContents({ mediaType, title }) {
               cursor-pointer
               items-center
               justify-center
+              rounded-l-2xl
+              text-white
               transition-all
               duration-200
               hover:bg-black/40
-              text-white
-              rounded-l-2xl
               md:flex
             "
           >

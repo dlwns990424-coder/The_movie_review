@@ -13,6 +13,7 @@ import Signup from "../pages/signup/Signup";
 import Login from "../pages/login/Login";
 import Wishlist from "../pages/wishlist/Wishlist";
 import ScrollToTop from "../pages/hook/ScrollToTop";
+import NotFound from "../pages/notfound/NotFound";
 export default function Router() {
   return (
     <BrowserRouter>
@@ -27,15 +28,15 @@ export default function Router() {
           <Route path="/tv" element={<Tv />} />
           <Route path="/tv/:tvId" element={<TvDetail />} />
 
-          <Route path="/people" element={<People />} />
-          <Route path="/people/:personId" element={<PersonDetail />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/people/:personId" element={<PersonDetail />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/mypage" element={<MyPage />} />
         </Route>
-        <Route path="/mypage" element={<MyPage />} />
-        <Route path="/search" element={<Search />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

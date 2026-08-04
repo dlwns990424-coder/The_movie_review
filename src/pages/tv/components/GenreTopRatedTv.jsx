@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
+import { useWishlist } from "../../hook/useWishlist";
 
 import { getTopRatedTvByGenre } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
@@ -33,23 +34,14 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
   // 실제로 화면에 보이는 Hover 카드 ID
   const [visibleId, setVisibleId] = useState(null);
 
-  // 찜 목록
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const savedWishlist = localStorage.getItem("wishlist");
-
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  });
-
   // 현재 화면에 보이는 슬라이드 범위
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
   });
+
+  // 공통 찜 Hook
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
   // Swiper 상태 업데이트
   const updateSwiperState = (swiper) => {
@@ -113,36 +105,8 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
   }, [selectedGenre]);
 
   // 찜 추가 및 해제
-  const handleWishlist = (e, item) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const wishlistItem = {
-      ...item,
-      media_type: "tv",
-    };
-
-    setWishlist((prev) => {
-      const alreadySaved = prev.some(
-        (savedItem) =>
-          savedItem.id === wishlistItem.id &&
-          savedItem.media_type === wishlistItem.media_type,
-      );
-
-      const nextWishlist = alreadySaved
-        ? prev.filter(
-            (savedItem) =>
-              !(
-                savedItem.id === wishlistItem.id &&
-                savedItem.media_type === wishlistItem.media_type
-              ),
-          )
-        : [...prev, wishlistItem];
-
-      localStorage.setItem("wishlist", JSON.stringify(nextWishlist));
-
-      return nextWishlist;
-    });
+  const handleWishlist = (event, item) => {
+    toggleWishlist(event, item, "tv");
   };
 
   if (!selectedGenre || loading) {
@@ -154,7 +118,7 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
   }
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
+    <section className="relative overflow-x-clip bg-black pt-[50px]">
       {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">
@@ -257,10 +221,7 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
 
-            const isWishlisted = wishlist.some(
-              (savedItem) =>
-                savedItem.id === item.id && savedItem.media_type === mediaType,
-            );
+            const itemIsWishlisted = isWishlisted(item.id, mediaType);
 
             return (
               <SwiperSlide
@@ -277,10 +238,8 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
                 onMouseLeave={() => {
                   clearTimeout(hoverTimer.current);
 
-                  // 먼저 Hover 카드 숨김
                   setVisibleId(null);
 
-                  // 애니메이션이 끝난 뒤 z-index 제거
                   closeTimer.current = setTimeout(() => {
                     setHoveredId(null);
                   }, 300);
@@ -291,7 +250,6 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
                   ${isHovered ? "!z-[150]" : "!z-0"}
                 `}
               >
-                {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
                   <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
@@ -314,19 +272,17 @@ export default function GenreTopRatedTv({ selectedGenre, heroTitle }) {
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
                       <span>★ {item.vote_average?.toFixed(1)}</span>
-
                       {year && <span>{year}</span>}
                     </div>
                   </div>
                 </Link>
 
-                {/* 상세 미리보기 카드 */}
                 <HoverPreviewCard
                   item={item}
                   mediaType={mediaType}
                   detailPath={detailPath}
                   isVisible={isVisible}
-                  isWishlisted={isWishlisted}
+                  isWishlisted={itemIsWishlisted}
                   handleWishlist={handleWishlist}
                   position={previewPosition}
                 />

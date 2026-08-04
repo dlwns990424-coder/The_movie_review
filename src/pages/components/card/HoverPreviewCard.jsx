@@ -130,7 +130,7 @@ export default function HoverPreviewCard({
 
           <button
             type="button"
-            onClick={(e) => handleWishlist(e, item)}
+            onClick={(e) => handleWishlist(e, item, mediaType)}
             aria-label={isWishlisted ? "찜 해제" : "찜하기"}
             className={`
               flex
@@ -197,9 +197,9 @@ export default function HoverPreviewCard({
             w-full
             items-center
             justify-center
+            text-sm
             rounded-lg
             bg-white
-            text-sm
             font-semibold
             text-black
             transition-all

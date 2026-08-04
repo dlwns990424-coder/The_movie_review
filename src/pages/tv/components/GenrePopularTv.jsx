@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
+import { useWishlist } from "../../hook/useWishlist";
 
 import { getPopularTvByGenre } from "../../../api/tvApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
@@ -29,21 +30,13 @@ export default function GenrePopularTv({ selectedGenre, heroTitle }) {
   // 실제로 보이는 Hover 카드
   const [visibleId, setVisibleId] = useState(null);
 
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const savedWishlist = localStorage.getItem("wishlist");
-
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  });
-
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
   });
+
+  // 공통 찜 Hook
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
   const updateSwiperState = (swiper) => {
     setIsBeginning(swiper.isBeginning);
@@ -102,36 +95,8 @@ export default function GenrePopularTv({ selectedGenre, heroTitle }) {
     };
   }, [selectedGenre]);
 
-  const handleWishlist = (e, item) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const wishlistItem = {
-      ...item,
-      media_type: "tv",
-    };
-
-    setWishlist((prev) => {
-      const alreadySaved = prev.some(
-        (savedItem) =>
-          savedItem.id === wishlistItem.id &&
-          savedItem.media_type === wishlistItem.media_type,
-      );
-
-      const nextWishlist = alreadySaved
-        ? prev.filter(
-            (savedItem) =>
-              !(
-                savedItem.id === wishlistItem.id &&
-                savedItem.media_type === wishlistItem.media_type
-              ),
-          )
-        : [...prev, wishlistItem];
-
-      localStorage.setItem("wishlist", JSON.stringify(nextWishlist));
-
-      return nextWishlist;
-    });
+  const handleWishlist = (event, item) => {
+    toggleWishlist(event, item, "tv");
   };
 
   if (!selectedGenre || loading) {
@@ -143,7 +108,7 @@ export default function GenrePopularTv({ selectedGenre, heroTitle }) {
   }
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
+    <section className="relative overflow-x-clip bg-black pt-[50px]">
       {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">
@@ -246,10 +211,7 @@ export default function GenrePopularTv({ selectedGenre, heroTitle }) {
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
 
-            const isWishlisted = wishlist.some(
-              (savedItem) =>
-                savedItem.id === item.id && savedItem.media_type === mediaType,
-            );
+            const itemIsWishlisted = isWishlisted(item.id, mediaType);
 
             return (
               <SwiperSlide
@@ -278,19 +240,12 @@ export default function GenrePopularTv({ selectedGenre, heroTitle }) {
                   ${isHovered ? "!z-[150]" : "!z-0"}
                 `}
               >
-                {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
                   <div className="aspect-[2/3] overflow-hidden rounded-lg bg-white/10">
                     <img
                       src={`${ORIGINAL_URL}${item.poster_path}`}
                       alt={title}
-                      className="
-                        h-full
-                        w-full
-                        object-cover
-                        transition-transform
-                        duration-300
-                      "
+                      className="h-full w-full object-cover transition-transform duration-300"
                     />
                   </div>
 
@@ -301,19 +256,17 @@ export default function GenrePopularTv({ selectedGenre, heroTitle }) {
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
                       <span>★ {item.vote_average?.toFixed(1)}</span>
-
                       {year && <span>{year}</span>}
                     </div>
                   </div>
                 </Link>
 
-                {/* 상세 미리보기 카드 */}
                 <HoverPreviewCard
                   item={item}
                   mediaType={mediaType}
                   detailPath={detailPath}
                   isVisible={isVisible}
-                  isWishlisted={isWishlisted}
+                  isWishlisted={itemIsWishlisted}
                   handleWishlist={handleWishlist}
                   position={previewPosition}
                 />

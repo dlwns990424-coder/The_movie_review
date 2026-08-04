@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-
+import { useWishlist } from "../../hook/useWishlist";
 import HoverPreviewCard from "../card/HoverPreviewCard";
 
 import { getUpcomingMovies } from "../../../api/movieApi";
@@ -57,17 +57,7 @@ export default function Upcoming({ mediaType, title }) {
     end: 0,
   });
 
-  // 찜 목록
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const savedWishlist = localStorage.getItem("wishlist");
-
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  });
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
   // Swiper 위치 상태 업데이트
   const updateSwiperState = (swiper) => {
@@ -151,37 +141,8 @@ export default function Upcoming({ mediaType, title }) {
     };
   }, [mediaType]);
 
-  // 찜 추가 및 삭제
-  const handleWishlist = (e, item) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const wishlistItem = {
-      ...item,
-      media_type: mediaType,
-    };
-
-    setWishlist((prev) => {
-      const alreadySaved = prev.some(
-        (savedItem) =>
-          savedItem.id === wishlistItem.id &&
-          savedItem.media_type === wishlistItem.media_type,
-      );
-
-      const nextWishlist = alreadySaved
-        ? prev.filter(
-            (savedItem) =>
-              !(
-                savedItem.id === wishlistItem.id &&
-                savedItem.media_type === wishlistItem.media_type
-              ),
-          )
-        : [...prev, wishlistItem];
-
-      localStorage.setItem("wishlist", JSON.stringify(nextWishlist));
-
-      return nextWishlist;
-    });
+  const handleWishlist = (event, item) => {
+    toggleWishlist(event, item, mediaType);
   };
 
   if (loading) return null;
@@ -189,7 +150,7 @@ export default function Upcoming({ mediaType, title }) {
   if (contents.length === 0) return null;
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[70px]">
+    <section className="relative overflow-x-clip bg-black py-[70px]">
       {/* 섹션 제목 */}
       <div className="mb-4 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">{title}</h2>
@@ -301,11 +262,7 @@ export default function Upcoming({ mediaType, title }) {
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
 
-            const isWishlisted = wishlist.some(
-              (savedItem) =>
-                savedItem.id === item.id && savedItem.media_type === mediaType,
-            );
-
+            const itemIsWishlisted = isWishlisted(item.id, mediaType);
             return (
               <SwiperSlide
                 key={cardId}
@@ -374,7 +331,7 @@ export default function Upcoming({ mediaType, title }) {
                   mediaType={mediaType}
                   detailPath={detailPath}
                   isVisible={isVisible}
-                  isWishlisted={isWishlisted}
+                  isWishlisted={itemIsWishlisted}
                   handleWishlist={handleWishlist}
                   position={previewPosition}
                   infoType="release"

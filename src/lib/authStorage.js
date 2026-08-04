@@ -41,6 +41,7 @@ export const signup = ({ username, nickname, password }) => {
     username: normalizedUsername,
     nickname: normalizedNickname,
     password,
+    createdAt: new Date().toISOString(),
   };
 
   localStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
@@ -63,9 +64,8 @@ export const login = ({ username, password }) => {
   const currentUser = {
     id: user.id,
     username: user.username,
-
-    // 기존 회원 데이터에 nickname이 없으면 username을 대신 사용
     nickname: user.nickname || user.username,
+    createdAt: user.createdAt || null,
   };
 
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
@@ -86,6 +86,7 @@ export const getCurrentUser = () => {
     return user ? JSON.parse(user) : null;
   } catch (error) {
     console.error("로그인 정보를 불러오지 못했습니다.", error);
+
     return null;
   }
 };

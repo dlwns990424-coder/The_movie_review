@@ -29,15 +29,6 @@ export default function Footer() {
 
             <li>
               <NavLink
-                to="/people"
-                className=" hover:!text-[#33ddff] transition-colors"
-              >
-                인기배우
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
                 to="/wishlist"
                 className=" hover:!text-[#33ddff] transition-colors"
               >

@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
+
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 import ContentsSkeleton from "../../components/skeleton/ContentsSkeleton";
-import "swiper/css";
+import { useWishlist } from "../../hook/useWishlist";
 
 import { getPopularMoviesByGenre } from "../../../api/movieApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
 import { addGenreNames } from "../../../lib/genreUtils";
+
+import "swiper/css";
 
 export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
   const swiperRef = useRef(null);
@@ -27,16 +30,13 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
   // 실제로 보이는 hover 카드
   const [visibleId, setVisibleId] = useState(null);
 
-  const [wishlist, setWishlist] = useState(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
-
-    return savedWishlist ? JSON.parse(savedWishlist) : [];
-  });
-
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: 0,
   });
+
+  // 공통 찜 Hook
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
   const updateSwiperState = (swiper) => {
     setIsBeginning(swiper.isBeginning);
@@ -95,42 +95,16 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
     setHoveredId(null);
   };
 
-  const handleWishlist = (e, item) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const wishlistItem = {
-      ...item,
-      media_type: "movie",
-    };
-
-    setWishlist((prev) => {
-      const alreadySaved = prev.some(
-        (savedItem) =>
-          savedItem.id === wishlistItem.id &&
-          savedItem.media_type === wishlistItem.media_type,
-      );
-
-      const nextWishlist = alreadySaved
-        ? prev.filter(
-            (savedItem) =>
-              !(
-                savedItem.id === wishlistItem.id &&
-                savedItem.media_type === wishlistItem.media_type
-              ),
-          )
-        : [...prev, wishlistItem];
-
-      localStorage.setItem("wishlist", JSON.stringify(nextWishlist));
-
-      return nextWishlist;
-    });
+  const handleWishlist = (event, item) => {
+    toggleWishlist(event, item, "movie");
   };
 
-  if (!selectedGenre || loading) return <ContentsSkeleton />;
+  if (!selectedGenre || loading) {
+    return <ContentsSkeleton />;
+  }
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[50px]">
+    <section className="relative overflow-x-clip bg-black pt-[50px]">
       {/* 제목 */}
       <div className="mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">
@@ -231,10 +205,7 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
 
-            const isWishlisted = wishlist.some(
-              (savedItem) =>
-                savedItem.id === item.id && savedItem.media_type === mediaType,
-            );
+            const itemIsWishlisted = isWishlisted(item.id, mediaType);
 
             return (
               <SwiperSlide
@@ -270,12 +241,12 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
                       src={`${ORIGINAL_URL}${item.poster_path}`}
                       alt={item.title}
                       className="
-                      h-full
-                      w-full
-                      object-cover
-                      transition-transform
-                      duration-300
-                    "
+                        h-full
+                        w-full
+                        object-cover
+                        transition-transform
+                        duration-300
+                      "
                     />
                   </div>
 
@@ -298,7 +269,7 @@ export default function GenrePopularMovies({ selectedGenre, heroTitle }) {
                   mediaType={mediaType}
                   detailPath={detailPath}
                   isVisible={isVisible}
-                  isWishlisted={isWishlisted}
+                  isWishlisted={itemIsWishlisted}
                   handleWishlist={handleWishlist}
                   position={previewPosition}
                 />

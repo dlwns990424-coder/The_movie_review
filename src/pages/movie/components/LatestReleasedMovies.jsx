@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
+import { useWishlist } from "../../hook/useWishlist";
 
 import { getLatestReleasedMovies } from "../../../api/movieApi";
 import { ORIGINAL_URL } from "../../../constants/imageUrl";
@@ -38,17 +39,8 @@ export default function LatestReleasedMovies({ title = "최신 개봉 영화" })
     end: 0,
   });
 
-  // 찜 목록
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const savedWishlist = localStorage.getItem("wishlist");
-
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  });
+  // 공통 찜 Hook
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
   // Swiper 위치 상태 업데이트
   const updateSwiperState = (swiper) => {
@@ -109,36 +101,8 @@ export default function LatestReleasedMovies({ title = "최신 개봉 영화" })
   }, []);
 
   // 찜 추가 및 해제
-  const handleWishlist = (e, item) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const wishlistItem = {
-      ...item,
-      media_type: "movie",
-    };
-
-    setWishlist((prev) => {
-      const alreadySaved = prev.some(
-        (savedItem) =>
-          savedItem.id === wishlistItem.id &&
-          savedItem.media_type === wishlistItem.media_type,
-      );
-
-      const nextWishlist = alreadySaved
-        ? prev.filter(
-            (savedItem) =>
-              !(
-                savedItem.id === wishlistItem.id &&
-                savedItem.media_type === wishlistItem.media_type
-              ),
-          )
-        : [...prev, wishlistItem];
-
-      localStorage.setItem("wishlist", JSON.stringify(nextWishlist));
-
-      return nextWishlist;
-    });
+  const handleWishlist = (event, item) => {
+    toggleWishlist(event, item, "movie");
   };
 
   if (loading) return null;
@@ -146,7 +110,7 @@ export default function LatestReleasedMovies({ title = "최신 개봉 영화" })
   if (contents.length === 0) return null;
 
   return (
-    <section className="relative overflow-x-clip bg-black/96 pt-[70px]">
+    <section className="relative overflow-x-clip bg-black pt-[70px]">
       {/* 섹션 제목 */}
       <div className="mb-4 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">{title}</h2>
@@ -233,7 +197,6 @@ export default function LatestReleasedMovies({ title = "최신 개봉 영화" })
             const mediaType = "movie";
             const cardId = `movie-${item.id}`;
             const contentTitle = item.title;
-            const year = item.release_date?.slice(0, 4);
             const detailPath = `/movie/${item.id}`;
 
             const previewPosition =
@@ -246,16 +209,14 @@ export default function LatestReleasedMovies({ title = "최신 개봉 영화" })
             const isHovered = hoveredId === cardId;
             const isVisible = visibleId === cardId;
 
-            const isWishlisted = wishlist.some(
-              (savedItem) =>
-                savedItem.id === item.id && savedItem.media_type === mediaType,
-            );
+            const itemIsWishlisted = isWishlisted(item.id, mediaType);
 
             return (
               <SwiperSlide
                 key={cardId}
                 onMouseEnter={() => {
                   clearTimeout(hoverTimer.current);
+
                   clearTimeout(closeTimer.current);
 
                   // 0.5초 후 Hover 카드 표시
@@ -318,9 +279,10 @@ export default function LatestReleasedMovies({ title = "최신 개봉 영화" })
                   mediaType={mediaType}
                   detailPath={detailPath}
                   isVisible={isVisible}
-                  isWishlisted={isWishlisted}
+                  isWishlisted={itemIsWishlisted}
                   handleWishlist={handleWishlist}
                   position={previewPosition}
+                  infoType="release"
                 />
               </SwiperSlide>
             );
