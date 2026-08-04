@@ -353,14 +353,14 @@ export default function GlobalTop10({ items }) {
                         <h3
                           className="
                             line-clamp-2
-                            text-[11px]
+                            text-[16px]
                             leading-snug
                             font-bold
                             text-white
                             drop-shadow
-                            sm:text-[12px]
-                            md:text-[14px]
-                            xl:text-[17px]
+                            sm:text-[16px]
+                            md:text-[16px]
+                            xl:text-[18px]
                           "
                         >
                           {title}
@@ -375,9 +375,9 @@ export default function GlobalTop10({ items }) {
                             gap-x-2
                             text-[9px]
                             text-white/70
-                            sm:text-[10px]
-                            md:text-[12px]
-                            xl:text-[13px]
+                            sm:text-[14px]
+                            md:text-[14px]
+                            xl:text-[14px]
                           "
                         >
                           {year && <span>{year}</span>}

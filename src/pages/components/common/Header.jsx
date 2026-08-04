@@ -219,27 +219,28 @@ export default function Header() {
                 className="
                   flex
                   h-10
-                  w-[240px]
-                  cursor-text
+                  w-10
+                  cursor-pointer
                   items-center
-                  gap-3
+                  justify-center
                   rounded-full
                   border
                   border-white/20
                   bg-black/20
-                  px-4
-                  text-left
-                  text-sm
-                  text-white/50
+                  text-white
                   backdrop-blur-md
                   transition
                   hover:border-[#33ddff]
-                  hover:text-white/80
+                  hover:text-[#33ddff]
+                  lg:w-[240px]
+                  lg:justify-start
+                  lg:gap-3
+                  lg:px-4
                 "
               >
                 <Search size={18} strokeWidth={1.8} />
 
-                <span>영화, 시리즈, 인물 검색</span>
+                <span className="hidden lg:block">영화, 시리즈, 인물 검색</span>
               </button>
             )}
 
@@ -365,7 +366,7 @@ export default function Header() {
           end
           onClick={closeProfileMenus}
           className={({ isActive }) =>
-            `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+            `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${
               isActive ? "text-[#33ddff]" : "text-white/60"
             }`
           }
@@ -379,7 +380,7 @@ export default function Header() {
           to="/search"
           onClick={closeProfileMenus}
           className={({ isActive }) =>
-            `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+            `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${
               isActive ? "text-[#33ddff]" : "text-white/60"
             }`
           }
@@ -394,7 +395,7 @@ export default function Header() {
             to="/wishlist"
             onClick={closeProfileMenus}
             className={({ isActive }) =>
-              `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+              `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${
                 isActive ? "text-[#33ddff]" : "text-white/60"
               }`
             }
@@ -406,7 +407,7 @@ export default function Header() {
           <button
             type="button"
             onClick={handleWishlistNavigate}
-            className={`flex h-full flex-1 cursor-pointer flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+            className={`flex h-full flex-1 cursor-pointer flex-col items-center justify-center gap-1 text-[14px] transition-colors ${
               location.pathname === "/wishlist"
                 ? "text-[#33ddff]"
                 : "text-white/60"
@@ -424,7 +425,7 @@ export default function Header() {
             onClick={handleMobileProfile}
             aria-label={isLoggedIn ? "마이페이지 메뉴" : "로그인"}
             aria-expanded={isMobileProfileOpen}
-            className={`flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+            className={`flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1 !text-[14px] transition-colors ${
               isMobileProfileOpen || location.pathname === "/mypage"
                 ? "text-[#33ddff]"
                 : "text-white/60"

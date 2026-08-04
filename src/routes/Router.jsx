@@ -16,7 +16,7 @@ import ScrollToTop from "../pages/hook/ScrollToTop";
 import NotFound from "../pages/notfound/NotFound";
 export default function Router() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/The_movie_review">
       <ScrollToTop />
 
       <Routes>

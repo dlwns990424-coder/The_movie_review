@@ -416,11 +416,11 @@ function WishlistCard({ item, onDelete }) {
 
         {/* 콘텐츠 정보 */}
         <div className="mt-3">
-          <h2 className="line-clamp-2 text-sm leading-5 font-semibold text-white transition-colors group-hover:text-[#33ddff] md:text-base">
+          <h2 className="line-clamp-2 text-[16px] leading-5 font-semibold text-white transition-colors group-hover:text-[#33ddff] md:text-base">
             {title}
           </h2>
 
-          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-white/45">
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-white/45">
             {item.vote_average > 0 && (
               <span className="flex items-center gap-1 text-[#33ddff]">
                 <Star size={13} fill="currentColor" />

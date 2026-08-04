@@ -423,7 +423,7 @@ export default function MyPage() {
                   hover:bg-red-500/20
                 "
                 >
-                  <Trash2 size={10} />
+                  <Trash2 size={14} />
                   전체 삭제
                 </button>
               )}
@@ -529,7 +529,7 @@ function WishlistPreviewCard({ item }) {
         </span>
       </div>
 
-      <h3 className="mt-3 line-clamp-2 text-sm leading-5 font-semibold text-white transition-colors group-hover:text-[#33ddff] md:text-base">
+      <h3 className="mt-3 line-clamp-2 text-[16px] leading-5 font-semibold text-white transition-colors group-hover:text-[#33ddff] md:text-base">
         {title}
       </h3>
 
