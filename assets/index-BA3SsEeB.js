@@ -28,7 +28,7 @@ Please change the parent <Route path="${e}"> to <Route path="${e===`/`?`*`:`${e}
             md:h-[80px]\r
             md:px-[40px]\r
             lg:px-[60px]\r
-          `,children:[(0,R.jsxs)(`div`,{className:`flex min-w-0 items-center`,children:[(0,R.jsx)(I,{to:`/`,onClick:h,className:`mr-5 shrink-0 md:mr-[50px]`,children:(0,R.jsx)(`h1`,{className:`text-[20px] font-bold whitespace-nowrap text-[#33ddff] md:text-[30px]`,children:`THE MOVIE`})}),(0,R.jsx)(`nav`,{children:(0,R.jsxs)(`ul`,{className:`flex items-center gap-8 md:gap-10`,children:[(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/movie`,onClick:h,className:({isActive:e})=>`text-[14px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${e?`text-[#33ddff]`:`text-white`}`,children:`영화`})}),(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/tv`,onClick:h,className:({isActive:e})=>`text-[14px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${e?`text-[#33ddff]`:`text-white`}`,children:`시리즈`})}),(0,R.jsx)(`li`,{className:`hidden md:list-item`,children:d?(0,R.jsx)(zr,{to:`/wishlist`,onClick:h,className:({isActive:e})=>`text-[16px] whitespace-nowrap transition-colors hover:text-[#33ddff] ${e?`text-[#33ddff]`:`text-white`}`,children:`내가 찜한 리스트`}):(0,R.jsx)(`button`,{type:`button`,onClick:g,className:`cursor-pointer text-[16px] whitespace-nowrap text-white transition-colors hover:text-[#33ddff]`,children:`내가 찜한 리스트`})})]})})]}),(0,R.jsxs)(`div`,{className:`hidden items-center gap-8 md:flex`,children:[!p&&(0,R.jsxs)(`button`,{type:`button`,onClick:()=>e(`/search`),"aria-label":`영화, 시리즈, 인물 검색`,className:`\r
+          `,children:[(0,R.jsxs)(`div`,{className:`flex min-w-0 items-center`,children:[(0,R.jsx)(I,{to:`/`,onClick:h,className:`mr-5 shrink-0 md:mr-[50px]`,children:(0,R.jsx)(`h1`,{className:`text-[20px] font-bold whitespace-nowrap text-[#33ddff] md:text-[30px]`,children:`THE MOVIE`})}),(0,R.jsx)(`nav`,{children:(0,R.jsxs)(`ul`,{className:`flex items-center gap-8 md:gap-10`,children:[(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/movie`,onClick:h,className:({isActive:e})=>`text-[16px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${e?`text-[#33ddff]`:`text-white`}`,children:`영화`})}),(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/tv`,onClick:h,className:({isActive:e})=>`text-[16px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${e?`text-[#33ddff]`:`text-white`}`,children:`시리즈`})}),(0,R.jsx)(`li`,{className:`hidden md:list-item`,children:d?(0,R.jsx)(zr,{to:`/wishlist`,onClick:h,className:({isActive:e})=>`text-[16px] whitespace-nowrap transition-colors hover:text-[#33ddff] ${e?`text-[#33ddff]`:`text-white`}`,children:`내가 찜한 리스트`}):(0,R.jsx)(`button`,{type:`button`,onClick:g,className:`cursor-pointer text-[16px] whitespace-nowrap text-white transition-colors hover:text-[#33ddff]`,children:`내가 찜한 리스트`})})]})})]}),(0,R.jsxs)(`div`,{className:`hidden items-center gap-8 md:flex`,children:[!p&&(0,R.jsxs)(`button`,{type:`button`,onClick:()=>e(`/search`),"aria-label":`영화, 시리즈, 인물 검색`,className:`\r
                   flex\r
                   h-10\r
                   w-10\r
@@ -95,7 +95,7 @@ Please change the parent <Route path="${e}"> to <Route path="${e===`/`?`*`:`${e}
           text-white\r
           backdrop-blur-md\r
           md:hidden\r
-        `,children:[(0,R.jsxs)(zr,{to:`/`,end:!0,onClick:h,className:({isActive:e})=>`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${e?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(wi,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`홈`})]}),(0,R.jsxs)(zr,{to:`/search`,onClick:h,className:({isActive:e})=>`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${e?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(Di,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`검색`})]}),d?(0,R.jsxs)(zr,{to:`/wishlist`,onClick:h,className:({isActive:e})=>`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${e?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(Ci,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`찜 목록`})]}):(0,R.jsxs)(`button`,{type:`button`,onClick:g,className:`flex h-full flex-1 cursor-pointer flex-col items-center justify-center gap-1 text-[14px] transition-colors ${t.pathname===`/wishlist`?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(Ci,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`찜 목록`})]}),(0,R.jsxs)(`div`,{ref:r,className:`relative flex h-full flex-1`,children:[(0,R.jsxs)(`button`,{type:`button`,onClick:()=>{if(!d){e(`/login`,{state:{from:`/mypage`}});return}s(e=>!e)},"aria-label":d?`마이페이지 메뉴`:`로그인`,"aria-expanded":o,className:`flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1 !text-[14px] transition-colors ${o||t.pathname===`/mypage`?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(bi,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:d?`마이페이지`:`로그인`})]}),d&&(0,R.jsxs)(`div`,{className:`
+        `,children:[(0,R.jsxs)(zr,{to:`/`,end:!0,onClick:h,className:({isActive:e})=>`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${e?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(wi,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`홈`})]}),(0,R.jsxs)(zr,{to:`/search`,onClick:h,className:({isActive:e})=>`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${e?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(Di,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`검색`})]}),d?(0,R.jsxs)(zr,{to:`/wishlist`,onClick:h,className:({isActive:e})=>`flex h-full flex-1 flex-col items-center justify-center gap-1 !text-[14px] transition-colors ${e?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(Ci,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`찜 목록`})]}):(0,R.jsxs)(`button`,{type:`button`,onClick:g,className:`flex h-full flex-1 cursor-pointer flex-col items-center justify-center gap-1 !text-[14px] transition-colors ${t.pathname===`/wishlist`?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(Ci,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:`찜 목록`})]}),(0,R.jsxs)(`div`,{ref:r,className:`relative flex h-full flex-1`,children:[(0,R.jsxs)(`button`,{type:`button`,onClick:()=>{if(!d){e(`/login`,{state:{from:`/mypage`}});return}s(e=>!e)},"aria-label":d?`마이페이지 메뉴`:`로그인`,"aria-expanded":o,className:`flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1 !text-[14px] transition-colors ${o||t.pathname===`/mypage`?`text-[#33ddff]`:`text-white/60`}`,children:[(0,R.jsx)(bi,{size:20,strokeWidth:1.8}),(0,R.jsx)(`span`,{children:d?`마이페이지`:`로그인`})]}),d&&(0,R.jsxs)(`div`,{className:`
                 absolute
                 right-3
                 bottom-[76px]
@@ -131,7 +131,7 @@ Please change the parent <Route path="${e}"> to <Route path="${e===`/`?`*`:`${e}
                   transition\r
                   hover:bg-white/10\r
                   hover:text-[#33ddff]\r
-                `,children:`로그아웃`})]})]})]})]})}function Wi(){return(0,R.jsxs)(`footer`,{className:`bg-black text-gray-400 py-[30px] h-[240px] flex flex-col items-center justify-between`,children:[(0,R.jsxs)(`div`,{className:`w-[27%]`,children:[(0,R.jsx)(I,{to:`/`,children:(0,R.jsx)(`h3`,{className:`text-[30px] text-[#33ddff] font-bold`,children:`THE MOVIE`})}),(0,R.jsx)(`nav`,{className:`mt-[20px]`,children:(0,R.jsxs)(`ul`,{className:`flex justify-between`,children:[(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/movie`,className:` hover:!text-[#33ddff] transition-colors`,children:`영화`})}),(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/tv`,className:` hover:!text-[#33ddff] transition-colors`,children:`시리즈`})}),(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/wishlist`,className:` hover:!text-[#33ddff] transition-colors`,children:`내가 찜한 리스트`})})]})})]}),(0,R.jsxs)(`div`,{className:`text-[14px] w-[27%] space-y-1`,children:[(0,R.jsx)(`p`,{children:`© 2026 THE MOVIE`}),(0,R.jsx)(`p`,{children:`This product uses the TMDB API but is not endorsed or certified by TMDB.`})]})]})}function Gi(){let[e,t]=(0,S.useState)(!1);return(0,S.useEffect)(()=>{let e=()=>{t(window.scrollY>=400)};return e(),window.addEventListener(`scroll`,e),()=>{window.removeEventListener(`scroll`,e)}},[]),(0,R.jsx)(`button`,{type:`button`,onClick:()=>{window.scrollTo({top:0,behavior:`smooth`})},"aria-label":`페이지 맨 위로 이동`,className:`
+                `,children:`로그아웃`})]})]})]})]})}function Wi(){return(0,R.jsx)(`footer`,{className:`bg-black text-gray-400 px-[20px] md:px-[40px] lg:px-[60px] py-[30px]`,children:(0,R.jsx)(`div`,{className:`w-full max-w-[1200px] mx-auto`,children:(0,R.jsxs)(`div`,{className:`flex flex-col items-start md:items-center gap-6`,children:[(0,R.jsx)(I,{to:`/`,children:(0,R.jsx)(`h3`,{className:`text-[24px] md:text-[28px] lg:text-[30px] font-bold text-[#33ddff]`,children:`THE MOVIE`})}),(0,R.jsx)(`nav`,{children:(0,R.jsxs)(`ul`,{className:`flex flex-wrap gap-5 md:gap-8 md:justify-center text-[15px] md:text-[16px]`,children:[(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/movie`,className:`hover:text-[#33ddff] transition-colors`,children:`영화`})}),(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/tv`,className:`hover:text-[#33ddff] transition-colors`,children:`시리즈`})}),(0,R.jsx)(`li`,{children:(0,R.jsx)(zr,{to:`/wishlist`,className:`hover:text-[#33ddff] transition-colors`,children:`내가 찜한 리스트`})})]})}),(0,R.jsxs)(`div`,{className:`w-full border-t border-white/10 pt-5 text-[12px] md:text-[14px] leading-6 text-left md:text-center mb-16 md:mb-0`,children:[(0,R.jsx)(`p`,{children:`© 2026 THE MOVIE`}),(0,R.jsx)(`p`,{children:`This product uses the TMDB API but is not endorsed or certified by TMDB.`})]})]})})})}function Gi(){let[e,t]=(0,S.useState)(!1);return(0,S.useEffect)(()=>{let e=()=>{t(window.scrollY>=400)};return e(),window.addEventListener(`scroll`,e),()=>{window.removeEventListener(`scroll`,e)}},[]),(0,R.jsx)(`button`,{type:`button`,onClick:()=>{window.scrollTo({top:0,behavior:`smooth`})},"aria-label":`페이지 맨 위로 이동`,className:`
         fixed
         right-[20px]
         z-[60]
@@ -736,7 +736,107 @@ to {
               duration-200\r
               hover:bg-black/40\r
               md:flex\r
-            `,children:(0,R.jsx)(vi,{size:42,strokeWidth:1.5})})]})]})}function eg(){let[e,t]=(0,S.useState)(null),[n,r]=(0,S.useState)(null),[i,a]=(0,S.useState)(null),[o,s]=(0,S.useState)([]),[c,l]=(0,S.useState)(!0);return(0,S.useEffect)(()=>{(async()=>{try{let e=(await gc()).results.filter(e=>e.media_type===`movie`||e.media_type===`tv`);if(e.length===0)return;let n=e[0],i=e.slice(0,10),o=await Promise.all(i.map(async e=>{let t=await yc(e.media_type,e.id);return{...e,logo:t}})),c=await _c(n.media_type,n.id);s(o),a(o[0]?.logo??null),t(n),r(c)}catch(e){console.log(e)}finally{l(!1)}})()},[]),c?(0,R.jsx)(bf,{}):(0,R.jsxs)(`div`,{children:[(0,R.jsx)(xf,{title:`홈`}),e&&n&&(0,R.jsx)(up,{item:e,detail:n,mediaType:e.media_type,heroLogo:i}),(0,R.jsx)(Yh,{items:o}),(0,R.jsx)(Jh,{mediaType:`movie`,title:`인기있는 영화`}),(0,R.jsx)(Jh,{mediaType:`tv`,title:`인기있는 시리즈`}),(0,R.jsx)($h,{mediaType:`movie`,title:`개봉 예정 영화`}),(0,R.jsx)($h,{mediaType:`tv`,title:`공개 예정 시리즈`})]})}function tg(){return(0,R.jsxs)(`section`,{className:`w-full max-w-[1920px] overflow-hidden h-screen pt-[100px] px-[60px] pb-[60px] relative`,children:[(0,R.jsx)(`div`,{className:`absolute inset-0 -z-30 bg-neutral-900`}),(0,R.jsxs)(`div`,{className:`w-full h-full rounded-3xl overflow-hidden relative bg-neutral-800 animate-pulse`,children:[(0,R.jsxs)(`div`,{className:`absolute top-[30px] left-[30px] flex items-center gap-4`,children:[(0,R.jsx)(`div`,{className:`w-[70px] h-[38px] rounded-lg bg-white/10`}),(0,R.jsx)(`div`,{className:`w-[150px] h-[44px] rounded-full bg-white/10`})]}),(0,R.jsxs)(`div`,{className:`w-[50%] absolute bottom-0 left-0 pb-[50px] px-[50px] flex flex-col gap-5`,children:[(0,R.jsx)(`div`,{className:`w-[320px] h-[100px] rounded-xl bg-white/10`}),(0,R.jsxs)(`div`,{className:`flex items-center gap-3`,children:[(0,R.jsx)(`div`,{className:`w-[60px] h-[22px] rounded bg-white/10`}),(0,R.jsx)(`div`,{className:`w-[70px] h-[22px] rounded bg-white/10`}),(0,R.jsx)(`div`,{className:`w-[50px] h-[22px] rounded bg-white/10`}),(0,R.jsx)(`div`,{className:`w-[50px] h-[22px] rounded bg-white/10`})]}),(0,R.jsxs)(`div`,{className:`space-y-3`,children:[(0,R.jsx)(`div`,{className:`w-full h-[18px] rounded bg-white/10`}),(0,R.jsx)(`div`,{className:`w-[90%] h-[18px] rounded bg-white/10`}),(0,R.jsx)(`div`,{className:`w-[70%] h-[18px] rounded bg-white/10`})]}),(0,R.jsx)(`div`,{className:`w-[120px] h-[48px] rounded-full bg-white/10`})]})]})]})}function ng(){return(0,R.jsxs)(`section`,{className:`relative overflow-x-clip bg-black/96 pt-[50px]`,children:[(0,R.jsx)(`div`,{className:`mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15`,children:(0,R.jsx)(`div`,{className:`h-7 w-[220px] animate-pulse rounded bg-white/10`})}),(0,R.jsx)(`div`,{className:`relative px-5 md:px-10 lg:px-15`,children:(0,R.jsx)(Ah,{className:`!overflow-visible`,allowTouchMove:!1,breakpoints:{0:{slidesPerView:2,spaceBetween:10},480:{slidesPerView:3,spaceBetween:10},768:{slidesPerView:3,spaceBetween:12},940:{slidesPerView:4,spaceBetween:16},1280:{slidesPerView:4,spaceBetween:18},1600:{slidesPerView:5,spaceBetween:18}},children:Array.from({length:5}).map((e,t)=>(0,R.jsx)(jh,{children:(0,R.jsxs)(`div`,{children:[(0,R.jsx)(`div`,{className:`aspect-video animate-pulse overflow-hidden rounded-lg bg-white/10`}),(0,R.jsxs)(`div`,{className:`mt-3`,children:[(0,R.jsx)(`div`,{className:`h-5 w-3/4 animate-pulse rounded bg-white/10`}),(0,R.jsxs)(`div`,{className:`mt-2 flex items-center gap-2`,children:[(0,R.jsx)(`div`,{className:`h-4 w-12 animate-pulse rounded bg-white/10`}),(0,R.jsx)(`div`,{className:`h-4 w-10 animate-pulse rounded bg-white/10`})]})]})]})},t))})})]})}function rg({selectedGenre:e,heroTitle:t}){let n=(0,S.useRef)(null),r=(0,S.useRef)(null),i=(0,S.useRef)(null),[a,o]=(0,S.useState)([]),[s,c]=(0,S.useState)(!0),[l,u]=(0,S.useState)(!0),[d,f]=(0,S.useState)(!1),[p,m]=(0,S.useState)(null),[h,g]=(0,S.useState)(null),[_,v]=(0,S.useState)({start:0,end:0}),{isWishlisted:y,toggleWishlist:b}=lp(),x=e=>{u(e.isBeginning),f(e.isEnd);let t=typeof e.params.slidesPerView==`number`?e.params.slidesPerView:1;v({start:e.activeIndex,end:e.activeIndex+t-1})};(0,S.useEffect)(()=>e?((async()=>{try{c(!0);let t=await qh((await Vh(e.id)).results,`movie`);o(t),setTimeout(()=>{n.current?.slideTo(0),u(!0),f(!1)},0)}catch(e){console.log(e),o([])}finally{c(!1)}})(),()=>{clearTimeout(r.current),clearTimeout(i.current)}):void 0,[e]);let C=()=>{clearTimeout(r.current),clearTimeout(i.current),g(null),m(null)},w=(e,t)=>{b(e,t,`movie`)};return!e||s?(0,R.jsx)(ng,{}):(0,R.jsxs)(`section`,{className:`relative overflow-x-clip bg-black pt-[50px]`,children:[(0,R.jsx)(`div`,{className:`mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15`,children:(0,R.jsxs)(`h2`,{className:`text-xl font-bold text-white md:text-2xl`,children:[(0,R.jsx)(`span`,{className:`text-[#33ddff]`,children:t}),` (와)과 같은 장르의 인기 영화`]})}),(0,R.jsxs)(`div`,{className:`relative px-5 md:px-10 lg:px-15`,children:[!l&&(0,R.jsx)(`button`,{type:`button`,onClick:()=>n.current?.slidePrev(),className:`\r
+            `,children:(0,R.jsx)(vi,{size:42,strokeWidth:1.5})})]})]})}function eg(){let[e,t]=(0,S.useState)(null),[n,r]=(0,S.useState)(null),[i,a]=(0,S.useState)(null),[o,s]=(0,S.useState)([]),[c,l]=(0,S.useState)(!0);return(0,S.useEffect)(()=>{(async()=>{try{let e=(await gc()).results.filter(e=>e.media_type===`movie`||e.media_type===`tv`);if(e.length===0)return;let n=e[0],i=e.slice(0,10),o=await Promise.all(i.map(async e=>{let t=await yc(e.media_type,e.id);return{...e,logo:t}})),c=await _c(n.media_type,n.id);s(o),a(o[0]?.logo??null),t(n),r(c)}catch(e){console.log(e)}finally{l(!1)}})()},[]),c?(0,R.jsx)(bf,{}):(0,R.jsxs)(`div`,{children:[(0,R.jsx)(xf,{title:`홈`}),e&&n&&(0,R.jsx)(up,{item:e,detail:n,mediaType:e.media_type,heroLogo:i}),(0,R.jsx)(Yh,{items:o}),(0,R.jsx)(Jh,{mediaType:`movie`,title:`인기있는 영화`}),(0,R.jsx)(Jh,{mediaType:`tv`,title:`인기있는 시리즈`}),(0,R.jsx)($h,{mediaType:`movie`,title:`개봉 예정 영화`}),(0,R.jsx)($h,{mediaType:`tv`,title:`공개 예정 시리즈`})]})}function tg(){return(0,R.jsxs)(`section`,{className:`\r
+        relative\r
+        h-[680px]\r
+        w-full\r
+        overflow-hidden\r
+        px-[20px]\r
+        pt-[85px]\r
+        pb-[20px]\r
+        sm:h-[720px]\r
+        md:h-[780px]\r
+        md:px-[40px]\r
+        md:pt-[100px]\r
+        md:pb-[40px]\r
+        lg:h-screen\r
+        lg:min-h-[760px]\r
+        lg:px-[60px]\r
+        lg:pb-[60px]\r
+      `,children:[(0,R.jsx)(`div`,{className:`absolute inset-0 -z-30 bg-neutral-900`}),(0,R.jsxs)(`div`,{className:`\r
+          relative\r
+          h-full\r
+          w-full\r
+          animate-pulse\r
+          overflow-hidden\r
+          rounded-2xl\r
+          bg-neutral-800\r
+          md:rounded-3xl\r
+        `,children:[(0,R.jsxs)(`div`,{className:`\r
+            absolute\r
+            top-[18px]\r
+            left-[18px]\r
+            flex\r
+            items-center\r
+            gap-2\r
+            sm:top-[24px]\r
+            sm:left-[24px]\r
+            sm:gap-3\r
+            md:top-[30px]\r
+            md:left-[30px]\r
+            md:gap-4\r
+          `,children:[(0,R.jsx)(`div`,{className:`\r
+              h-[30px]\r
+              w-[52px]\r
+              rounded-lg\r
+              bg-white/10\r
+              sm:h-[34px]\r
+              sm:w-[60px]\r
+              md:h-[38px]\r
+              md:w-[70px]\r
+            `}),(0,R.jsx)(`div`,{className:`\r
+              h-10\r
+              w-[120px]\r
+              rounded-full\r
+              bg-white/10\r
+              sm:h-11\r
+              sm:w-[140px]\r
+              md:h-12\r
+              md:w-[150px]\r
+            `})]}),(0,R.jsxs)(`div`,{className:`\r
+            absolute\r
+            bottom-0\r
+            left-0\r
+            flex\r
+            w-full\r
+            flex-col\r
+            gap-4\r
+            px-[20px]\r
+            pb-[28px]\r
+            sm:px-[28px]\r
+            sm:pb-[36px]\r
+            md:w-[65%]\r
+            md:gap-5\r
+            md:px-[40px]\r
+            md:pb-[45px]\r
+            lg:w-[55%]\r
+            lg:max-w-[900px]\r
+            lg:px-[50px]\r
+            lg:pb-[50px]\r
+          `,children:[(0,R.jsx)(`div`,{className:`\r
+              h-[70px]\r
+              w-[220px]\r
+              rounded-xl\r
+              bg-white/10\r
+              sm:h-[85px]\r
+              sm:w-[270px]\r
+              md:h-[100px]\r
+              md:w-[320px]\r
+            `}),(0,R.jsxs)(`div`,{className:`flex flex-wrap items-center gap-2 md:gap-3`,children:[(0,R.jsx)(`div`,{className:`h-[18px] w-[48px] rounded bg-white/10 md:h-[22px] md:w-[60px]`}),(0,R.jsx)(`div`,{className:`h-[18px] w-[58px] rounded bg-white/10 md:h-[22px] md:w-[70px]`}),(0,R.jsx)(`div`,{className:`h-[18px] w-[42px] rounded bg-white/10 md:h-[22px] md:w-[50px]`}),(0,R.jsx)(`div`,{className:`h-[18px] w-[42px] rounded bg-white/10 md:h-[22px] md:w-[50px]`})]}),(0,R.jsxs)(`div`,{className:`space-y-2.5 md:space-y-3`,children:[(0,R.jsx)(`div`,{className:`h-[14px] w-full rounded bg-white/10 md:h-[18px]`}),(0,R.jsx)(`div`,{className:`h-[14px] w-[90%] rounded bg-white/10 md:h-[18px]`}),(0,R.jsx)(`div`,{className:`h-[14px] w-[70%] rounded bg-white/10 md:h-[18px]`})]}),(0,R.jsxs)(`div`,{className:`flex items-center gap-3`,children:[(0,R.jsx)(`div`,{className:`\r
+                h-11\r
+                w-[120px]\r
+                rounded-full\r
+                bg-white/10\r
+                md:h-12\r
+                md:w-[135px]\r
+              `}),(0,R.jsx)(`div`,{className:`\r
+                h-11\r
+                w-[120px]\r
+                rounded-full\r
+                bg-white/10\r
+                md:h-12\r
+                md:w-[135px]\r
+              `})]})]})]})]})}function ng(){return(0,R.jsxs)(`section`,{className:`relative overflow-x-clip bg-black/96 pt-[50px]`,children:[(0,R.jsx)(`div`,{className:`mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15`,children:(0,R.jsx)(`div`,{className:`h-7 w-[220px] animate-pulse rounded bg-white/10`})}),(0,R.jsx)(`div`,{className:`relative px-5 md:px-10 lg:px-15`,children:(0,R.jsx)(Ah,{className:`!overflow-visible`,allowTouchMove:!1,breakpoints:{0:{slidesPerView:2,spaceBetween:10},480:{slidesPerView:3,spaceBetween:10},768:{slidesPerView:3,spaceBetween:12},940:{slidesPerView:4,spaceBetween:16},1280:{slidesPerView:4,spaceBetween:18},1600:{slidesPerView:5,spaceBetween:18}},children:Array.from({length:5}).map((e,t)=>(0,R.jsx)(jh,{children:(0,R.jsxs)(`div`,{children:[(0,R.jsx)(`div`,{className:`aspect-video animate-pulse overflow-hidden rounded-lg bg-white/10`}),(0,R.jsxs)(`div`,{className:`mt-3`,children:[(0,R.jsx)(`div`,{className:`h-5 w-3/4 animate-pulse rounded bg-white/10`}),(0,R.jsxs)(`div`,{className:`mt-2 flex items-center gap-2`,children:[(0,R.jsx)(`div`,{className:`h-4 w-12 animate-pulse rounded bg-white/10`}),(0,R.jsx)(`div`,{className:`h-4 w-10 animate-pulse rounded bg-white/10`})]})]})]})},t))})})]})}function rg({selectedGenre:e,heroTitle:t}){let n=(0,S.useRef)(null),r=(0,S.useRef)(null),i=(0,S.useRef)(null),[a,o]=(0,S.useState)([]),[s,c]=(0,S.useState)(!0),[l,u]=(0,S.useState)(!0),[d,f]=(0,S.useState)(!1),[p,m]=(0,S.useState)(null),[h,g]=(0,S.useState)(null),[_,v]=(0,S.useState)({start:0,end:0}),{isWishlisted:y,toggleWishlist:b}=lp(),x=e=>{u(e.isBeginning),f(e.isEnd);let t=typeof e.params.slidesPerView==`number`?e.params.slidesPerView:1;v({start:e.activeIndex,end:e.activeIndex+t-1})};(0,S.useEffect)(()=>e?((async()=>{try{c(!0);let t=await qh((await Vh(e.id)).results,`movie`);o(t),setTimeout(()=>{n.current?.slideTo(0),u(!0),f(!1)},0)}catch(e){console.log(e),o([])}finally{c(!1)}})(),()=>{clearTimeout(r.current),clearTimeout(i.current)}):void 0,[e]);let C=()=>{clearTimeout(r.current),clearTimeout(i.current),g(null),m(null)},w=(e,t)=>{b(e,t,`movie`)};return!e||s?(0,R.jsx)(ng,{}):(0,R.jsxs)(`section`,{className:`relative overflow-x-clip bg-black pt-[50px]`,children:[(0,R.jsx)(`div`,{className:`mb-8 flex items-center justify-between px-5 md:px-10 lg:px-15`,children:(0,R.jsxs)(`h2`,{className:`text-xl font-bold text-white md:text-2xl`,children:[(0,R.jsx)(`span`,{className:`text-[#33ddff]`,children:t}),` (와)과 같은 장르의 인기 영화`]})}),(0,R.jsxs)(`div`,{className:`relative px-5 md:px-10 lg:px-15`,children:[!l&&(0,R.jsx)(`button`,{type:`button`,onClick:()=>n.current?.slidePrev(),className:`\r
               absolute\r
               top-0\r
               bottom-0\r
