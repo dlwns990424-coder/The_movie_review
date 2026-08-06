@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { toast } from "sonner";
 
 import HoverPreviewCard from "../../components/card/HoverPreviewCard";
 
 import { W500_URL } from "../../../constants/imageUrl";
+import { useAuth } from "../../../context/AuthContext";
 
 import "swiper/css";
 
@@ -13,6 +15,13 @@ export default function GlobalTop10({ items }) {
   const swiperRef = useRef(null);
   const hoverTimer = useRef(null);
   const closeTimer = useRef(null);
+
+  const navigate = useNavigate();
+
+  const { currentUser, isLoggedIn } = useAuth();
+
+  // 로그인 사용자별 찜 목록 localStorage key
+  const wishlistKey = currentUser?.id ? `wishlist-${currentUser.id}` : null;
 
   // Swiper 처음과 끝 상태
   const [isBeginning, setIsBeginning] = useState(true);
@@ -30,17 +39,27 @@ export default function GlobalTop10({ items }) {
     end: 0,
   });
 
-  // 찜 목록
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const savedWishlist = localStorage.getItem("wishlist");
+  // 현재 로그인 사용자의 찜 목록
+  const [wishlist, setWishlist] = useState([]);
 
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
-    } catch (error) {
-      console.log(error);
-      return [];
+  // 로그인 사용자별 찜 목록 불러오기
+  useEffect(() => {
+    if (!wishlistKey) {
+      setWishlist([]);
+      return;
     }
-  });
+
+    try {
+      const savedWishlist = JSON.parse(
+        localStorage.getItem(wishlistKey) || "[]",
+      );
+
+      setWishlist(Array.isArray(savedWishlist) ? savedWishlist : []);
+    } catch (error) {
+      console.log("찜 목록 불러오기 실패:", error);
+      setWishlist([]);
+    }
+  }, [wishlistKey]);
 
   // Swiper 상태 업데이트
   const updateSwiperState = (swiper) => {
@@ -67,6 +86,7 @@ export default function GlobalTop10({ items }) {
     setHoveredId(null);
   };
 
+  // 컴포넌트 제거 시 타이머 정리
   useEffect(() => {
     return () => {
       clearTimeout(hoverTimer.current);
@@ -74,34 +94,60 @@ export default function GlobalTop10({ items }) {
     };
   }, []);
 
-  // 찜 추가 및 삭제
-  const handleWishlist = (e, item) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // 찜 추가 및 해제
+  const handleWishlist = (event, item) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-    setWishlist((prev) => {
-      const alreadySaved = prev.some(
-        (savedItem) =>
-          savedItem.id === item.id && savedItem.media_type === item.media_type,
-      );
+    if (!isLoggedIn || !currentUser || !wishlistKey) {
+      toast.warning("로그인이 필요한 기능입니다.");
+      navigate("/login");
+      return;
+    }
 
-      const nextWishlist = alreadySaved
-        ? prev.filter(
-            (savedItem) =>
-              !(
-                savedItem.id === item.id &&
-                savedItem.media_type === item.media_type
-              ),
-          )
-        : [...prev, item];
+    const mediaType = item.media_type;
 
-      localStorage.setItem("wishlist", JSON.stringify(nextWishlist));
+    if (mediaType !== "movie" && mediaType !== "tv") {
+      toast.error("콘텐츠 정보를 확인할 수 없습니다.");
+      return;
+    }
 
-      return nextWishlist;
-    });
+    const wishlistItem = {
+      ...item,
+      media_type: mediaType,
+      addedAt: item.addedAt || new Date().toISOString(),
+    };
+
+    const alreadySaved = wishlist.some(
+      (savedItem) =>
+        savedItem.id === wishlistItem.id &&
+        savedItem.media_type === wishlistItem.media_type,
+    );
+
+    const nextWishlist = alreadySaved
+      ? wishlist.filter(
+          (savedItem) =>
+            !(
+              savedItem.id === wishlistItem.id &&
+              savedItem.media_type === wishlistItem.media_type
+            ),
+        )
+      : [...wishlist, wishlistItem];
+
+    setWishlist(nextWishlist);
+
+    localStorage.setItem(wishlistKey, JSON.stringify(nextWishlist));
+
+    if (alreadySaved) {
+      toast("찜 목록에서 제거되었습니다.");
+    } else {
+      toast.success("찜 목록에 추가되었습니다.");
+    }
   };
 
-  if (!items || items.length === 0) return null;
+  if (!items || items.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative overflow-x-clip bg-black pt-[50px]">
@@ -193,7 +239,9 @@ export default function GlobalTop10({ items }) {
           }}
         >
           {items.map((item, index) => {
-            if (!item.poster_path) return null;
+            if (!item.poster_path) {
+              return null;
+            }
 
             const mediaType = item.media_type;
             const cardId = `${mediaType}-${item.id}`;
@@ -254,10 +302,6 @@ export default function GlobalTop10({ items }) {
               >
                 {/* 기본 카드 */}
                 <Link to={detailPath} className="block">
-                  {/*
-                    왼쪽 공간은 순위 숫자 영역,
-                    오른쪽은 포스터 영역
-                  */}
                   <div className="relative pl-[20%] sm:pl-[22%] xl:pl-[24%]">
                     {/* 순위 숫자 */}
                     <div
@@ -421,13 +465,12 @@ export default function GlobalTop10({ items }) {
               cursor-pointer
               items-center
               justify-center
-              hover:bg-black/40
+              rounded-l-2xl
+              text-white
               transition-all
               duration-200
-              text-white
+              hover:bg-black/40
               md:flex
-              rounded-l-2xl
-              rounded-bl-lg-2x1
             "
           >
             <ChevronRight size={42} strokeWidth={1.5} />
