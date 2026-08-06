@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronDown, ChevronLeft, ChevronUp, Star } from "lucide-react";
 
 import { getPeopleCredits, getPeopleDetail } from "../../api/peopleApi";
-
 import { ORIGINAL_URL } from "../../constants/imageUrl";
 
 import PageTitle from "../components/common/PageTitle";
@@ -21,14 +20,19 @@ export default function PersonDetail() {
 
   const [loading, setLoading] = useState(true);
 
-  // 모바일 소개글 펼침 상태
+  // 소개글 펼침 상태
   const [showFullBiography, setShowFullBiography] = useState(false);
+
+  // 소개글 더보기 버튼 표시 여부
+  const [showBiographyButton, setShowBiographyButton] = useState(false);
 
   // 영화 전체 목록 펼침 상태
   const [showAllMovies, setShowAllMovies] = useState(false);
 
   // 시리즈 전체 목록 펼침 상태
   const [showAllTv, setShowAllTv] = useState(false);
+
+  const biographyRef = useRef(null);
 
   // 인물 상세정보와 출연 작품 요청
   useEffect(() => {
@@ -66,7 +70,7 @@ export default function PersonDetail() {
     loadPersonDetail();
   }, [personId]);
 
-  // 다른 인물 상세페이지로 이동하면 초기화
+  // 다른 인물 상세페이지로 이동하면 상태 초기화
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -74,9 +78,37 @@ export default function PersonDetail() {
     });
 
     setShowFullBiography(false);
+    setShowBiographyButton(false);
     setShowAllMovies(false);
     setShowAllTv(false);
   }, [personId]);
+
+  // 소개글이 4줄을 초과하는지 확인
+  useEffect(() => {
+    const biographyElement = biographyRef.current;
+
+    if (!biographyElement || showFullBiography) return;
+
+    const checkBiographyOverflow = () => {
+      const isOverflowing =
+        biographyElement.scrollHeight > biographyElement.clientHeight + 1;
+
+      setShowBiographyButton(isOverflowing);
+    };
+
+    const animationFrame = requestAnimationFrame(checkBiographyOverflow);
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkBiographyOverflow();
+    });
+
+    resizeObserver.observe(biographyElement);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+    };
+  }, [person?.biography, showFullBiography]);
 
   if (loading) {
     return <Loading />;
@@ -247,41 +279,52 @@ export default function PersonDetail() {
               <div className="mt-8">
                 <h2 className="mb-4 text-xl font-bold md:text-2xl">소개</h2>
 
-                {/* 모바일 소개글 */}
-                <div className="md:hidden">
-                  <p
-                    className={`whitespace-pre-line text-[15px] leading-7 text-white/70 ${
-                      showFullBiography ? "" : "line-clamp-5"
-                    }`}
-                  >
-                    {biography}
-                  </p>
-
-                  {person.biography && (
-                    <button
-                      type="button"
-                      onClick={() => setShowFullBiography((prev) => !prev)}
-                      className="mt-4 flex cursor-pointer items-center gap-2 text-sm font-semibold text-[#33ddff]"
-                    >
-                      {showFullBiography ? (
-                        <>
-                          접기
-                          <ChevronUp size={17} />
-                        </>
-                      ) : (
-                        <>
-                          더보기
-                          <ChevronDown size={17} />
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-
-                {/* 태블릿 및 PC 소개글 */}
-                <p className="hidden max-w-[820px] whitespace-pre-line text-base leading-8 text-white/70 md:block">
+                <p
+                  ref={biographyRef}
+                  className={`
+                    max-w-[820px]
+                    whitespace-pre-line
+                    text-[15px]
+                    leading-7
+                    text-white/70
+                    md:text-base
+                    md:leading-8
+                    ${showFullBiography ? "" : "line-clamp-4"}
+                  `}
+                >
                   {biography}
                 </p>
+
+                {person.biography && showBiographyButton && (
+                  <button
+                    type="button"
+                    onClick={() => setShowFullBiography((prev) => !prev)}
+                    className="
+                      mt-4
+                      flex
+                      cursor-pointer
+                      items-center
+                      gap-2
+                      text-sm
+                      font-semibold
+                      text-[#33ddff]
+                      transition-colors
+                      hover:text-[#66e7ff]
+                    "
+                  >
+                    {showFullBiography ? (
+                      <>
+                        접기
+                        <ChevronUp size={17} />
+                      </>
+                    ) : (
+                      <>
+                        더보기
+                        <ChevronDown size={17} />
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -356,7 +399,7 @@ function CreditListSection({
 
       {items.length > 0 ? (
         <>
-          {/* PC 헤더 */}
+          {/* 태블릿 / PC 헤더 */}
           <div
             className="
               hidden
@@ -502,12 +545,12 @@ function CreditListItem({ item, mediaType }) {
         </div>
       </div>
 
-      {/* PC 역할 */}
+      {/* 태블릿 / PC 역할 */}
       <span className="hidden text-sm text-white/55 md:block">
         {getCreditRole(item.order)}
       </span>
 
-      {/* PC 평점 */}
+      {/* 태블릿 / PC 평점 */}
       <span className="hidden items-center gap-1 text-sm text-white/55 md:flex">
         {rating !== "-" ? (
           <>
@@ -539,7 +582,6 @@ function getUniqueCredits(items) {
 // 최신 공개 작품 우선 정렬
 function sortCreditsByDate(a, b) {
   const aDate = a.release_date || a.first_air_date || "";
-
   const bDate = b.release_date || b.first_air_date || "";
 
   if (!aDate && !bDate) {

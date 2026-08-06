@@ -150,7 +150,7 @@ export default function Upcoming({ mediaType, title }) {
   if (contents.length === 0) return null;
 
   return (
-    <section className="relative overflow-x-clip bg-black py-[70px]">
+    <section className="relative overflow-x-clip bg-black pt-[70px]">
       {/* 섹션 제목 */}
       <div className="mb-4 flex items-center justify-between px-5 md:px-10 lg:px-15">
         <h2 className="text-xl font-bold text-white md:text-2xl">{title}</h2>

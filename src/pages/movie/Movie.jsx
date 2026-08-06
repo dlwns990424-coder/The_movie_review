@@ -150,6 +150,7 @@ export default function Movie() {
       <LatestReleasedMovies title="최신 개봉 영화" />
 
       <Upcoming mediaType="movie" title="개봉 예정 영화" />
+      <div className="pb-[70px] bg-black"></div>
     </div>
   );
 }

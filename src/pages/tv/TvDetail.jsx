@@ -543,7 +543,7 @@ export default function TvDetail() {
                     />
                   </div>
 
-                  <h3 className="mt-3 truncate text-sm font-semibold transition-colors group-hover:text-[#33ddff]">
+                  <h3 className="mt-3 truncate text-base font-semibold transition-colors group-hover:text-[#33ddff] ">
                     {item.name}
                   </h3>
 
@@ -627,17 +627,17 @@ function CastCard({ person }) {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center px-2 text-center text-xs text-white/30">
+          <div className="flex h-full items-center justify-center px-2 text-center text-sm text-white/30">
             이미지 없음
           </div>
         )}
       </div>
 
-      <h3 className="mt-3 truncate text-sm font-semibold text-white transition-colors group-hover:text-[#33ddff]">
+      <h3 className="mt-3 truncate text-base font-semibold text-white transition-colors group-hover:text-[#33ddff] lg:text-base">
         {person.name}
       </h3>
 
-      <p className="mt-1 text-xs text-white/45">{getCastRole(person.order)}</p>
+      <p className="mt-1 text-sm text-white/45">{getCastRole(person.order)}</p>
     </Link>
   );
 }
@@ -656,17 +656,17 @@ function SeasonCard({ season }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center px-2 text-center text-xs text-white/30">
+          <div className="flex h-full items-center justify-center px-2 text-center text-sm text-white/30">
             이미지 없음
           </div>
         )}
       </div>
 
-      <h3 className="mt-3 truncate text-sm font-semibold text-white">
+      <h3 className="mt-3 truncate text-base font-semibold text-white ">
         {season.name}
       </h3>
 
-      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-white/45">
+      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-white/45 ">
         {airYear && <span>{airYear}</span>}
 
         {season.episode_count > 0 && <span>{season.episode_count}화</span>}

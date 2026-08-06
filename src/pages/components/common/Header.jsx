@@ -157,7 +157,7 @@ export default function Header() {
                     to="/movie"
                     onClick={closeProfileMenus}
                     className={({ isActive }) =>
-                      `text-[14px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${
+                      `text-[16px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${
                         isActive ? "text-[#33ddff]" : "text-white"
                       }`
                     }
@@ -171,7 +171,7 @@ export default function Header() {
                     to="/tv"
                     onClick={closeProfileMenus}
                     className={({ isActive }) =>
-                      `text-[14px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${
+                      `text-[16px] whitespace-nowrap transition-colors hover:text-[#33ddff] md:text-[16px] ${
                         isActive ? "text-[#33ddff]" : "text-white"
                       }`
                     }
@@ -395,7 +395,7 @@ export default function Header() {
             to="/wishlist"
             onClick={closeProfileMenus}
             className={({ isActive }) =>
-              `flex h-full flex-1 flex-col items-center justify-center gap-1 text-[14px] transition-colors ${
+              `flex h-full flex-1 flex-col items-center justify-center gap-1 !text-[14px] transition-colors ${
                 isActive ? "text-[#33ddff]" : "text-white/60"
               }`
             }
@@ -407,7 +407,7 @@ export default function Header() {
           <button
             type="button"
             onClick={handleWishlistNavigate}
-            className={`flex h-full flex-1 cursor-pointer flex-col items-center justify-center gap-1 text-[14px] transition-colors ${
+            className={`flex h-full flex-1 cursor-pointer flex-col items-center justify-center gap-1 !text-[14px] transition-colors ${
               location.pathname === "/wishlist"
                 ? "text-[#33ddff]"
                 : "text-white/60"

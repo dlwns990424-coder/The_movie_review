@@ -164,6 +164,7 @@ export default function Tv() {
 
       {/* 공개 예정 시리즈 */}
       <Upcoming mediaType="tv" title="공개 예정 시리즈" />
+      <div className="pb-[70px] bg-black"></div>
     </div>
   );
 }

@@ -492,11 +492,20 @@ export default function MovieDetail() {
                     />
                   </div>
 
-                  <h3 className="mt-3 truncate text-sm font-semibold transition-colors group-hover:text-[#33ddff]">
+                  <h3
+                    className="
+                      mt-3
+                      truncate
+                      text-base
+                      font-semibold
+                      transition-colors
+                      group-hover:text-[#33ddff]
+                    "
+                  >
                     {item.title}
                   </h3>
 
-                  <div className="mt-1 flex items-center gap-2 text-xs text-white/50">
+                  <div className="mt-1 flex items-center gap-2 text-sm text-white/50">
                     <span>★ {item.vote_average?.toFixed(1)}</span>
 
                     {item.release_date && (
@@ -574,17 +583,29 @@ function CastCard({ person }) {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center px-2 text-center text-xs text-white/30">
+          <div className="flex h-full items-center justify-center px-2 text-center text-sm text-white/30">
             이미지 없음
           </div>
         )}
       </div>
 
-      <h3 className="mt-3 truncate text-sm font-semibold text-white transition-colors group-hover:text-[#33ddff]">
+      {/* 출연진 이름 */}
+      <h3
+        className="
+          mt-3
+          truncate
+          text-base
+          font-semibold
+          text-white
+          transition-colors
+          group-hover:text-[#33ddff]
+        "
+      >
         {person.name}
       </h3>
 
-      <p className="mt-1 text-xs text-white/45">{getCastRole(person.order)}</p>
+      {/* 주연 / 조연 / 출연 */}
+      <p className="mt-1 text-sm text-white/45 ">{getCastRole(person.order)}</p>
     </Link>
   );
 }
