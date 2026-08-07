@@ -20,7 +20,7 @@ THE MOVIE는 TMDB API를 활용하여 영화와 TV 시리즈 정보를 제공하
 - React 기반 SPA와 재사용 가능한 컴포넌트 구조 구현
 - 다양한 디바이스에 대응하는 반응형 UI 구현
 - 사용자별 로그인, 찜 목록 및 리뷰 관리 기능 구현
-- Hover Preview Card와 Skeleton UI를 통한 사용자 경험 개선
+- Hover Preview Card를 통한 사용자 경험 개선
 
 ---
 
@@ -128,14 +128,13 @@ src
 
 ## 🚀 주요 구현
 
-- TMDB API를 활용한 영화 및 시리즈 데이터 조회
+- TMDB API를 활용한 영화 및 TV 시리즈 정보 조회
 - React Router를 활용한 SPA 라우팅
-- Context API를 활용한 로그인 상태 관리
-- LocalStorage를 활용한 사용자별 찜 목록 관리
-- Swiper를 활용한 콘텐츠 슬라이더 구현
-- Hover Preview Card 구현
-- Skeleton UI 적용
-- 반응형 웹 구현 (Desktop / Tablet / Mobile)
+- Context API와 LocalStorage를 활용한 사용자 인증 및 상태 관리
+- 사용자별 찜 목록 및 리뷰 CRUD 기능 구현
+- Swiper를 활용한 콘텐츠 슬라이더 및 Hover Preview Card 구현
+- Skeleton UI를 적용하여 로딩 중 사용자 경험 개선
+- Desktop / Tablet / Mobile 환경에 대응하는 반응형 UI 구현
 
 ---
 
@@ -165,15 +164,6 @@ src
 
 - 장르를 변경할 때마다 TMDB API를 반복 호출하여 불필요한 네트워크 요청이 발생
 - 초기 로딩 시 데이터를 한 번만 가져온 뒤 `filter()`를 활용하여 클라이언트에서 장르별 데이터를 필터링하도록 변경해 응답 속도와 성능 개선
-
----
-
-## 💭 개선 사항
-
-- Firebase 또는 백엔드 서버를 활용한 사용자 데이터 관리
-- 이미지 Lazy Loading 및 코드 스플리팅을 통한 성능 최적화
-- 장르, 평점, 개봉연도 등 다양한 검색 필터 제공
-- 리뷰 좋아요 및 댓글 기능 추가
 
 ---
 
