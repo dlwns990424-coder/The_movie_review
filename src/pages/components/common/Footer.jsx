@@ -43,11 +43,11 @@ export default function Footer() {
           </nav>
 
           <div className="w-full border-t border-white/10 pt-5 text-[12px] md:text-[14px] leading-6 text-left md:text-center mb-16 md:mb-0">
-            <p>© 2026 THE MOVIE</p>
             <p>
               This product uses the TMDB API but is not endorsed or certified by
               TMDB.
             </p>
+            <p>© 2026 THE MOVIE</p>
           </div>
         </div>
       </div>
