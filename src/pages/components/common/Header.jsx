@@ -12,10 +12,13 @@ export default function Header() {
   const mobileProfileRef = useRef(null);
 
   const [isDesktopProfileOpen, setIsDesktopProfileOpen] = useState(false);
-
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
 
+  // 맨 위가 아닌지 확인
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // 상단 Header 표시 여부
+  const [showHeader, setShowHeader] = useState(true);
 
   const { currentUser, isLoggedIn, logout } = useAuth();
 
@@ -46,12 +49,14 @@ export default function Header() {
     });
   };
 
+  // 로그아웃
   const handleLogout = () => {
     logout();
     closeProfileMenus();
     navigate("/");
   };
 
+  // 모바일 프로필 버튼
   const handleMobileProfile = () => {
     if (!isLoggedIn) {
       navigate("/login", {
@@ -89,15 +94,41 @@ export default function Header() {
     };
   }, []);
 
-  // 스크롤하면 Header 배경 표시
+  // Header 스크롤 동작
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      const currentScrollY = window.scrollY;
+
+      // 맨 위가 아니면 검정 배경 적용
+      setIsScrolled(currentScrollY > 0);
+
+      // 맨 위에서는 항상 Header 표시
+      if (currentScrollY <= 0) {
+        setShowHeader(true);
+        lastScrollY = 0;
+        return;
+      }
+
+      // 아래로 스크롤하면 Header 숨김
+      if (currentScrollY > lastScrollY) {
+        setShowHeader(false);
+      }
+
+      // 위로 조금이라도 스크롤하면 Header 표시
+      if (currentScrollY < lastScrollY) {
+        setShowHeader(true);
+      }
+
+      lastScrollY = currentScrollY;
     };
 
     handleScroll();
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -107,6 +138,9 @@ export default function Header() {
   // 페이지가 바뀌면 프로필 메뉴 닫기
   useEffect(() => {
     closeProfileMenus();
+    setShowHeader(true);
+
+    setIsScrolled(window.scrollY > 0);
   }, [location.pathname]);
 
   return (
@@ -120,8 +154,12 @@ export default function Header() {
           z-50
           w-full
           text-white
-          transition-colors
+          transition-all
           duration-300
+          ease-in-out
+
+          ${showHeader ? "translate-y-0" : "translate-y-0 lg:-translate-y-full"}
+
           ${isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-transparent"}
         `}
       >
@@ -208,7 +246,7 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* PC 오른쪽 */}
+          {/* PC 및 태블릿 오른쪽 */}
           <div className="hidden items-center gap-8 md:flex">
             {/* 검색 페이지에서는 Header 검색 버튼 숨김 */}
             {!isSearchPage && (
