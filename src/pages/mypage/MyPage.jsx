@@ -269,7 +269,7 @@ export default function MyPage() {
                   {currentUser.nickname} 님
                 </h2>
 
-                <p className="mt-2 text-sm text-white/45">THE MOVIE 회원</p>
+                <p className="mt-2 text-sm text-white/45">MAMORI 회원</p>
               </div>
             </div>
 

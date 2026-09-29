@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import PageTitle from "../components/common/PageTitle";
+import BrandLogo from "../components/common/BrandLogo";
 import { toast } from "sonner";
 export default function Login() {
   const navigate = useNavigate();
@@ -45,13 +46,10 @@ export default function Login() {
         <div className="w-full max-w-[420px]">
           <Link
             to="/"
-            aria-label="THE MOVIE 홈으로 이동"
-            className="mb-8 block text-center"
+            aria-label="MAMORI 홈으로 이동"
+            className="mb-8 flex justify-center"
           >
-            {" "}
-            <span className="text-[38px] font-bold text-[#33ddff]">
-              THE MOVIE
-            </span>
+            <BrandLogo className="w-[210px]" />
           </Link>
           <form
             onSubmit={handleSubmit}

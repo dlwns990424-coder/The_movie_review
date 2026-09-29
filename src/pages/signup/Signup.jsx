@@ -11,6 +11,7 @@ import {
 } from "../../lib/validation";
 
 import PageTitle from "../components/common/PageTitle";
+import BrandLogo from "../components/common/BrandLogo";
 
 function ValidationMessage({ isValid, children }) {
   return (
@@ -90,12 +91,10 @@ export default function Signup() {
         <div className="w-full max-w-[440px]">
           <Link
             to="/"
-            aria-label="THE MOVIE 홈으로 이동"
-            className="mb-8 block text-center"
+            aria-label="MAMORI 홈으로 이동"
+            className="mb-8 flex justify-center transition hover:opacity-80"
           >
-            <span className="text-[30px] font-bold text-[#33ddff] transition hover:opacity-80 md:text-[38px]">
-              THE MOVIE
-            </span>
+            <BrandLogo className="w-[200px] md:w-[220px]" />
           </Link>
           <form
             onSubmit={handleSubmit}

@@ -1,15 +1,17 @@
 import { Link, NavLink } from "react-router-dom";
+import BrandLogo from "./BrandLogo";
 
 export default function Footer() {
   return (
     <footer className="bg-black text-gray-400 px-[20px] md:px-[40px] lg:px-[60px] py-[30px]">
       <div className="w-full max-w-[1200px] mx-auto">
         <div className="flex flex-col items-start md:items-center gap-6">
-          <Link to="/">
-            <h3 className="text-[24px] md:text-[28px] lg:text-[30px] font-bold text-[#33ddff]">
-              THE MOVIE
-            </h3>
+          <Link to="/" aria-label="MAMORI 홈으로 이동">
+            <BrandLogo className="w-[150px] md:w-[170px]" />
           </Link>
+          <p className="-mt-3 text-[11px] tracking-[0.28em] text-white/35 md:text-[12px]">
+            MY MOVIE REVIEW
+          </p>
 
           <nav>
             <ul className="flex flex-wrap gap-5 md:gap-8 md:justify-center text-[15px] md:text-[16px]">
@@ -47,7 +49,7 @@ export default function Footer() {
               This product uses the TMDB API but is not endorsed or certified by
               TMDB.
             </p>
-            <p>© 2026 THE MOVIE</p>
+            <p>© 2026 MAMORI</p>
           </div>
         </div>
       </div>

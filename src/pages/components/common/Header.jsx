@@ -3,6 +3,7 @@ import { CircleUserRound, Heart, Home, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "../../../context/AuthContext";
+import BrandLogo from "./BrandLogo";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -181,11 +182,10 @@ export default function Header() {
             <Link
               to="/"
               onClick={closeProfileMenus}
+              aria-label="MAMORI 홈으로 이동"
               className="mr-5 shrink-0 md:mr-[50px]"
             >
-              <h1 className="text-[20px] font-bold whitespace-nowrap text-[#33ddff] md:text-[30px]">
-                THE MOVIE
-              </h1>
+              <BrandLogo compact className="w-[108px] md:w-[150px]" />
             </Link>
 
             <nav>
