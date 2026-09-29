@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="160" viewBox="0 0 700 160" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">MAMORI</title>
+  <desc id="desc">MAMO는 청록 외곽선과 딥 차콜 채움, RI는 청록 단색으로 구성한 워드마크</desc>
+  <g fill="#132126" stroke="#33DDFF" stroke-width="5" stroke-linejoin="round">
+    <path d="M10 140V20H40L75 74L110 20H140V140H108V76L83 117H67L42 76V140H10Z"/>
+    <path fill-rule="evenodd" d="M151 140L191 20H231L271 140H238L230 113H192L184 140H151ZM201 84H221L211 49L201 84Z"/>
+    <path d="M282 140V20H312L347 74L382 20H412V140H380V76L355 117H339L314 76V140H282Z"/>
+    <path fill-rule="evenodd" d="M484 16C448 16 423 41 423 80C423 119 448 144 484 144C520 144 545 119 545 80C545 41 520 16 484 16ZM484 47C502 47 513 60 513 80C513 100 502 113 484 113C466 113 455 100 455 80C455 60 466 47 484 47Z"/>
+  </g>
+  <g fill="#33DDFF">
+    <path fill-rule="evenodd" d="M560 140V20H610C643 20 663 37 663 65C663 83 654 97 638 104L668 140H629L605 109H592V140H560ZM592 48V82H608C623 82 631 76 631 65C631 54 623 48 608 48H592Z"/>
+    <path d="M674 20H698V140H674V20Z"/>
+  </g>
+</svg>

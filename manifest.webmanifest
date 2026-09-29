@@ -1,0 +1,28 @@
+{
+  "name": "MAMORI - My Movie Review",
+  "short_name": "MAMORI",
+  "description": "영화와 시리즈를 탐색하고 나만의 리뷰로 마무리하는 MAMORI",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "brand/mamori-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "brand/mamori-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "brand/mamori-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

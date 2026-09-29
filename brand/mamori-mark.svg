@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">MAMORI 앱 아이콘</title>
+  <desc id="desc">검은 둥근 사각형 안에 청록색 M을 배치한 아이콘</desc>
+  <rect width="512" height="512" rx="112" fill="#050505"/>
+  <rect x="3" y="3" width="506" height="506" rx="109" stroke="#243238" stroke-width="6"/>
+  <path d="M112 376V136H174L256 253L338 136H400V376H336V250L278 338H234L176 250V376H112Z" fill="#33DDFF"/>
+</svg>
